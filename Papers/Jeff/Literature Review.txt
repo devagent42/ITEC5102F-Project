@@ -1,0 +1,52 @@
+ITEC 5102 Project - Literature Review:
+
+07247513: Secure Virtual Private LAN Services: An Overview with Performance Evaluation
+	- VPN is a widely popular method to schare access to SCADA devices across enterprise networks but lacks security
+	- VPLS is a proposed network architecture to interconnect the legacy services, however the VPLS is vulnerable to
+	  security threats due to insecure VPN tunnels created to connect CE's and PE's
+	- These threats can jeopardize the VPLS and strain the network or even terminate vpn tunnels.
+	- HIP-Bases VPLS is the only proposed architecture to provide security across provider network and customer sites
+	- HIPLS is implimented as a "bump in the wire" 
+	- The results of the experiment were a significant decrease in throughput for TCP and UDP connections
+	- Proposed future work is on the implimentation of HIP-switches, which can significantly improve throughput
+
+07378982: OpenSec: Policy-Based Security Using Software-Defined Netoworking
+	- Policy based security can be controlled by openflow SDN controller with specific instructions applied to each
+	  flow as needed
+	- Frenetic is a language used to program openflow based networks that provides an interface to query traffic information
+	- OpenSec is an SDN framework capable of forwarding flows to security processing units based on policies and to automatically
+	  react to security events.
+
+08777334: Securing IoT Devices and SecurelyConnecting the Dots Using REST API and Middleware
+	- IOT Middleware needs to manage a trust relationship with devices so that these devices can be authenticated
+	  and authorized to share data
+	- Figure 2 shows model of middleware infastructure
+	- In this set up there is an IoT gateway to connect IoT device to database over the internet (figure 5)
+	- IoT devices are isolated from outside world and connected via gateway
+	- The gateway acts as intermediate and uses REST API to exchange information securely with middleware at the DB
+	- because middle ware and IoT gateway are not resource constrained like the IoT device itself, no need for lightweight
+	  security protocols.
+
+06030377: Study on Service-Oriented Security Architecture
+	- Service Oriented Architecture (SOA) is a design approach to satisfy requirements using services
+	- Goal is to distribute resources with independent services to other users of same SOA environment
+	- 4-Layer approach (Figure 1) shows each layer of SOA Security
+		1. Service Core - Provides basic needs such as service discovery and searching, connection of security service
+		   management, and combination of services.
+		2. Basic Security Service Layer - consists of basic security components which can be dynamically mangaged
+		   in support of the security core
+		3. Extended Security Service Layer - Provide more complex security components for outer layer applications.
+		4. Security Application Layer - This layer is where security applications are connected such as security devices
+		   and Security Application Programs
+	- Key Function of security service core is to provide connectivity, data conversion, and service routing for different platform
+	  and protocols
+	- There are 3 main patterns to satisfy this functionality:
+		1. Service Connection Pattern - security service core acts as intermediart to couple service users
+	 	   with service providers
+		2. Service Driven Pattern - Service provider and user can call and respond to services cia protocols defined
+		   by the security core.
+		3. Message Exchange Pattern - Services are realized by messages exchanged between service provider and user (request/response)
+		4. Distributed Cache Pattern - A large scale implementation to cache frequently requested security components
+	- Pattern 1 seems relevant to our project.
+
+

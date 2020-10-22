@@ -1,0 +1,84 @@
+ITEC 5102: Project Meeting [2020-09-24]
+
+Attendees:
+Fahmida H.
+Georges A.
+Jeff B.
+
+Purpose: To discuss the project topic and determine direction for proposal due October 4th. To understand the
+	 goal of the project, the tools necassary to reach these goals, and determine a jumping off point to
+	 begin work on the project.
+
+-REmote security for services (protected service)
+- IEP
+- Figure out a service based vpn
+- Nebula - link services through sevice network
+- consul.io by hashcorp
+- tailscale full mesh vpn using wiregaurd
+- Nebula: lighthouse (discovery system) connects peers directly
+- Tinc vpn
+
+- not too many papers available on this topic
+
+What do we want to do? - demonstrate the need for service networking (consul and google IEP) proxy-ing the service
+Why do we want to do it?
+How are we going to do it?
+2 month deliverable timeline
+
+- use python and docker with mqtt host, packet capture on the link (encrypted without changing mqtt)
+- whats the difference between this and a vpn? This vpns a specific service not an entire subnet
+- use s-tunnel and docker to have automated final product
+- socs proxy?? 
+- streisand server - playbook to set up vpns - shadow socs - secure socs5 proxy
+
+shadowsocs or s-tunnel:
+- shadowsocs is more of an s-tunnel
+
+presentation sign up:
+Progress november 9th
+Results december 7th
+
+Final outcome: have a way to encrypt traffic at a service level without changing the service itself
+
+buzzwords: service encrytpion proxy
+
+if i can understand consul, thatd be good. consul is the gold standard.
+	- a streamlined version of their service would be a good goal for the project
+	- 3 or 4 streams of traffic, one is the protected traffic, the rest we don't care about, demonstrate
+	  that traffic is encrypted and round trip delay of other streams are not affected
+	- show that wiregaurd cannot read the data
+	- email proxy? could be good
+
+future: www.whatsapp.com - for group messaging
+	jitsi for group meetings - meet.jit.si/ITEC5102
+
+python: mqtt library
+	elastic search library
+	request library to post data - post secret to webserver through s-tunne
+
+
+Action items:
+	proposal - due october 5th
+	intro presentation - due september 30th
+
+	All: 	- read proposal and make changes accordingly
+
+	George:	- set up lab
+		- vpn access
+		- start on python script
+		- dockerizing STunnel
+
+	Fahmida:- MQTT library
+
+	Jeff: 	- python rest api
+		- see task list
+		- send secret to web server and post time stamp
+		- Elastic search library
+		- install docker and docker compose
+
+Next meeting - Tuesday Sept. 29th at 6pm
+
+
+	
+		
+
