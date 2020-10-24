@@ -4,3 +4,8 @@
   - [ ] http server
   - [x] mqtt client
   - [x] mqtt server
+- [ ] VPN Lab
+  - [ ] STunnel
+  - [ ] Shadowsocks
+  - [ ] Wireguard
+  - [ ] Consul
