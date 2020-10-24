@@ -3,3 +3,7 @@
 *out
 *report.pdf
 *synctex.gz
+*bin*
+*include*
+*lib*
+*pip-selfcheck.json*
