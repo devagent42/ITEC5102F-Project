@@ -4,16 +4,11 @@
 - Proposal - Due October 5th
 
 ## Georges
-- [ ] Will setup lab
-- [ ] Provide VPN access
-- [ ] Start Python scripts
-- [ ] Start docker compose file
-- [ ] Work on docker files
-  - [ ] Nginx Server
-  - [ ] MQTT Server
-  - [ ] Nginx Server w/Stunnel
-  - [ ] MQTT Server w/Stunnel
-- [ ] Contribute to proposal
+- [x] Will setup lab
+- [x] Provide VPN access
+- [x] Start Python scripts
+- [x] Start docker compose file
+- [z] Contribute to proposal
 
 ## Fahmida
 - [ ] Python MQTT library
