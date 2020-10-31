@@ -2,7 +2,7 @@ version: '3'
 
 services:
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     ports:
       - 9200:9200
     environment:
@@ -21,7 +21,7 @@ services:
         aliases:
           - es01
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.9.3
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
       - ELASTICSEARCH_HOSTS=http://es01:9200
     ports:
@@ -30,6 +30,13 @@ services:
       mgmt0:
         aliases:
           - kibana
+  #packetbeat:
+  #  build: ./PacketBeat/
+  #  cap_add:
+  #    - NET_ADMIN
+  #    - NET_RAW
+  #  networks:
+  #    mgmt0:
   mqtt-broker:
     image: eclipse-mosquitto
     hostname: mosquitto
