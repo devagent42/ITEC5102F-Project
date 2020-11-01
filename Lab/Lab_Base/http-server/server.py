@@ -33,9 +33,7 @@ def process_data():
     #client_time = data['client_time'].format(datetime(), time)
     #device = data['device'].format(str())
     #client_ID = data['client_ID'].format(str())
-
-
     return "Well received!"
-    
+
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080)
+    app.run()
