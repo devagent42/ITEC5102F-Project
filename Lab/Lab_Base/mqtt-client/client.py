@@ -1,7 +1,7 @@
 
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
-import os, json, uuid, random
+import json, uuid, random
 from datetime import datetime
 from elasticsearch import Elasticsearch
 import time
