@@ -1,40 +1,23 @@
-from flask import Flask
-from flask import request
-from datetime import datetime
-import json
-import time
+import requests
 import uuid
+from datetime import datetime
+import time
 from elasticsearch import Elasticsearch
 
+now = datetime.utcnow()
 ID = uuid.uuid4()
-ID = str(ID).replace('-','')
+ID = str(ID).replace('-', '')
 
-local = False
-
-if local:
-    esHost = 'localhost'
-    httpHost = 'localhost'
-else:
-    esHost = "es01"
-    httpHost = 'http'
-
-es = Elasticsearch(host=esHost)
-
-app = Flask(__name__)
-
-##############################
-########## fix this ##########
-# request.post(THE URL HERE)
-# JSON = JSON file
-
+# es = Elasticsearch(host='http://127.0.0.1:5000')
 while True:
-    now = datetime.utcnow()
-    secret = {"type": "secret", "secret": str(ID), "client_time": now.timestamp(), "device": "http_client",
-              "client_ID": str(ID)}
-    # Something here to publish secret
-    # print (json.dumps(secret))
-    # Might need this, might not...
-    # secret = {"type": "secret", "secret": str(ID), "client_time": now, "device": "http_client",
-    #           "client_ID": str(ID)}
-    es.index(index="client-data", doc_type="_doc", body=secret)
+    response = requests.get('http://127.0.0.1:5000',
+                            json={"type": "secret", "secret": str(ID), "client_time": now.timestamp(),
+                                  "device": "http_client",
+                                  "client_ID": str(ID)})
+
+    print("Status code: ", response.status_code)
+    secret = {"type": "secret", "secret": str(ID), "client_time": now.timestamp(), "device": "http_client", "client_ID": str(ID)}
+    # es.index(index="client-data", doc_type="_doc", body=secret)
     time.sleep(2)
+
+
