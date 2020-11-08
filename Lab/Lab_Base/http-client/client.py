@@ -8,9 +8,18 @@ now = datetime.utcnow()
 ID = uuid.uuid4()
 ID = str(ID).replace('-', '')
 
-es = Elasticsearch(host='127.0.0.1')
+local = True
+
+if local:
+    esHost = 'localhost'
+    httpHost = 'localhost'
+else:
+    esHost = "es01"
+    httpHost = 'http'
+
+es = Elasticsearch(host=esHost)
 while True:
-    response = requests.post('http://127.0.0.1:5000/process_data',
+    response = requests.post('http://'+httpHost+':5000/process_data',
                             json={"type": "secret", "secret": str(ID), "client_time": str(now),
                                   "device": "http_client",
                                   "client_ID": str(ID)})
