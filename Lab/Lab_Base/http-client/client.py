@@ -8,16 +8,14 @@ now = datetime.utcnow()
 ID = uuid.uuid4()
 ID = str(ID).replace('-', '')
 
-# es = Elasticsearch(host='http://127.0.0.1:5000')
+es = Elasticsearch(host='127.0.0.1')
 while True:
-    response = requests.get('http://127.0.0.1:5000',
-                            json={"type": "secret", "secret": str(ID), "client_time": now.timestamp(),
+    response = requests.post('http://127.0.0.1:5000/process_data',
+                            json={"type": "secret", "secret": str(ID), "client_time": str(now),
                                   "device": "http_client",
                                   "client_ID": str(ID)})
 
     print("Status code: ", response.status_code)
-    secret = {"type": "secret", "secret": str(ID), "client_time": now.timestamp(), "device": "http_client", "client_ID": str(ID)}
-    # es.index(index="client-data", doc_type="_doc", body=secret)
+    secret = {"type": "secret", "secret": str(ID), "client_time": now, "device": "http_client", "client_ID": str(ID)}
+    es.index(index="client-data", doc_type="_doc", body=secret)
     time.sleep(2)
-
-
