@@ -27,20 +27,13 @@ def process_data():
     data = request.data#Request.get_json(force=True)
     data = data.decode("utf-8")
     data = json.loads(data)
+    data["client_time"] = datetime.fromtimestamp(data["client_time"])
     print (data)
     body = {"server_time":datetime.utcnow(),"device":"http_server","message":data}
     es.index(index="server-data", doc_type="_doc", body=body)
 
     return "Well received!!!"
 
-def on_message(client, userdata, data):
-    try:
-        msg = json.loads(msg.payload)
-        msg["client_time"] = datetime.fromtimestamp(msg["client_time"])
-        body = {"server_time":datetime.utcnow(),"device":"http_server","message":data}
-        es.index(index="server-data", doc_type="_doc", body=body)
-    except:
-        pass
 
 if __name__ == '__main__':
     app.run()
