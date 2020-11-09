@@ -18,13 +18,14 @@ else:
     httpHost = 'http'
 
 es = Elasticsearch(host=esHost)
+
 while True:
     response = requests.post('http://'+httpHost+':5000/process_data',
-                            json={"type": "secret", "secret": str(ID), "client_time": str(now),
+                            json={"type": "secret", "secret": str(ID), "client_time": str(now.isoformat()),
                                   "device": "http_client",
                                   "client_ID": str(ID)})
 
     print("Status code: ", response.status_code)
-    secret = {"type": "secret", "secret": str(ID), "client_time": now, "device": "http_client", "client_ID": str(ID)}
-    es.index(index="client-data", doc_type="_doc", body=secret)
+    secret = {"timestamp":datetime.utcnow(),"type": "secret", "secret": str(ID), "client_time": now, "device": "http_client", "client_ID": str(ID)}
+    es.index(index="data", doc_type="_doc", body=secret)
     time.sleep(2)
