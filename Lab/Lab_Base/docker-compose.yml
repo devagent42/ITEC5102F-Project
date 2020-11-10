@@ -70,7 +70,22 @@ services:
       - es01
     networks:
       mgmt0:
-
+  http-server0:
+    build: ./http-server/
+    restart: always
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
+        aliases:
+          - http
+  http-client0:
+    build: ./http-client/
+    restart: always
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
 networks:
   mgmt0:
   client0:

@@ -5,7 +5,7 @@ import json
 import time
 from elasticsearch import Elasticsearch
 
-local = True
+local = False
 
 if local:
     esHost = 'localhost'
@@ -36,4 +36,4 @@ def process_data():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host= '0.0.0.0')

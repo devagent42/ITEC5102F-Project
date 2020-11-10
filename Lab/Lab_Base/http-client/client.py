@@ -8,7 +8,7 @@ now = datetime.utcnow()
 ID = uuid.uuid4()
 ID = str(ID).replace('-', '')
 
-local = True
+local = False
 
 if local:
     esHost = 'localhost'
@@ -20,12 +20,13 @@ else:
 es = Elasticsearch(host=esHost)
 
 while True:
+    secret_passwrd = uuid.uuid4()
     response = requests.post('http://'+httpHost+':5000/process_data',
-                            json={"type": "secret", "secret": str(ID), "client_time": str(now.isoformat()),
+                            json={"type": "secret", "secret": str(secret_passwrd), "client_time": str(now.isoformat()),
                                   "device": "http_client",
                                   "client_ID": str(ID)})
 
-    print("Status code: ", response.status_code)
-    secret = {"timestamp":datetime.utcnow(),"type": "secret", "secret": str(ID), "client_time": now, "device": "http_client", "client_ID": str(ID)}
+    #print("Status code: ", response.status_code)
+    secret = {"timestamp":datetime.utcnow(),"type": "secret", "secret": str(secret_passwrd), "client_time": now, "device": "http_client", "client_ID": str(ID)}
     es.index(index="data", doc_type="_doc", body=secret)
     time.sleep(2)
