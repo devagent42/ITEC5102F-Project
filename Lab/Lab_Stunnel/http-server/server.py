@@ -27,13 +27,13 @@ def process_data():
     data = request.data#Request.get_json(force=True)
     data = data.decode("utf-8")
     data = json.loads(data)
-    print (data)
-    #type = data['type'].format(str())
-    #secret = data['data]'].format(str())
-    #client_time = data['client_time'].format(datetime(), time)
-    #device = data['device'].format(str())
-    #client_ID = data['client_ID'].format(str())
-    return "Well received!"
+    data["client_time"] = datetime.fromisoformat(str(data["client_time"]))
+    #print (type(data["client_time"]))
+    body = {"timestamp":datetime.utcnow(),"server_time":datetime.utcnow(),"device":"http_server","message":data}
+    es.index(index="data", doc_type="_doc", body=body)
+
+    return "Well received!!!"
+
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host= '0.0.0.0')
