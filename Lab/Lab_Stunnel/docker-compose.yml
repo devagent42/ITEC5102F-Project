@@ -1,8 +1,10 @@
 version: '3'
 
 services:
+  #Backend Services
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
+    container_name: elasticsearch
     ports:
       - 9200:9200
     environment:
@@ -22,6 +24,7 @@ services:
           - es01
   kibana:
     image: docker.elastic.co/kibana/kibana-oss:7.9.3
+    container_name: kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://es01:9200
     ports:
@@ -30,7 +33,9 @@ services:
       mgmt0:
         aliases:
           - kibana
+
   mqtt-broker:
+    container_name: MQTT-Broker
     image: eclipse-mosquitto
     hostname: mosquitto
     environment:
@@ -41,20 +46,77 @@ services:
     volumes:
       - ./Backend/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
     networks:
-      mgmt0:
+      mqtt-broker:
         aliases:
           - mqtt
   sys-mqtt-to-es:
     build: ./sys-mqtt-to-es/
+    container_name: System-to-Elastic
     restart: always
     depends_on:
       - es01
       - mqtt-broker
       - kibana
     networks:
+      mqtt-broker:
       mgmt0:
 
+  #HTTP
+  http-server0:
+    container_name: HTTP-Server
+    build: ./http-server/
+    restart: always
+    depends_on:
+      - es01
+    networks:
+      http-proxy-to-server:
+        aliases:
+          - server
+      mgmt0:
+  http-client0:
+    container_name: HTTP-Client
+    build: ./http-client/
+    restart: always
+    depends_on:
+      - es01
+    networks:
+      http-proxy-from-client:
+      mgmt0:
+
+  http-stunnel-client0:
+    container_name: Stunnel-HTTP-Client
+    build: ./stunnel/
+    restart: always
+    volumes:
+      - ./stunnel_configs/stunnel4:/etc/default/stunnel4
+      - ./stunnel_configs/psk.txt:/etc/stunnel/psk.txt
+      - ./stunnel_configs/stunnel_client.conf:/etc/stunnel/stunnel.conf
+    networks:
+      http-proxy-backend:
+        aliases:
+          - stunnelclient
+      http-proxy-from-client:
+        aliases:
+          - http
+    command: bash -c "stunnel4 && tail -f /dev/null"
+  http-stunnel-server0:
+    container_name: Stunnel-HTTP-Server
+    build: ./stunnel/
+    restart: always
+    volumes:
+      - ./stunnel_configs/stunnel4:/etc/default/stunnel4
+      - ./stunnel_configs/psk.txt:/etc/stunnel/psk.txt
+      - ./stunnel_configs/stunnel_server.conf:/etc/stunnel/stunnel.conf
+    networks:
+      http-proxy-backend:
+        aliases:
+          - stunnelserver
+      http-proxy-to-server:
+    command: bash -c "stunnel4 && tail -f /dev/null"
+
+
   mqtt-client0:
+    container_name: MQTT-Client
     build: ./mqtt-client/
     restart: always
     depends_on:
@@ -63,6 +125,7 @@ services:
     networks:
       mgmt0:
   mqtt-server0:
+    container_name: MQTT-Server
     build: ./mqtt-server/
     restart: always
     depends_on:
@@ -70,73 +133,31 @@ services:
       - es01
     networks:
       mgmt0:
-  http-server0:
-    build: ./http-server/
-    restart: always
-    depends_on:
-      - es01
-    networks:
-      mgmt0:
-        aliases:
-          - http
-  http-client0:
-    build: ./http-client/
-    restart: always
-    depends_on:
-      - es01
-    networks:
-      mgmt0:
 
-  """
-  http-server0:
-    build: ./http-server/
-    restart: always
-    depends_on:
-      - es01
-    networks:
-      http_server_proxy0:
-        aliases:
-          - http
-  http-client0:
-    build: ./http-client/
-    restart: always
-    depends_on:
-      - es01
-    networks:
-      http_client_proxy0:
-  http-server-proxy0:
-    build: ./http-server/
-    restart: always
-    depends_on:
-      - es01
-    networks:
-      proxy0:
-        aliases:
-          - server
-      http_server_proxy0:
-        aliases:
-          - http
-  http-client-proxy0:
-    build: ./http-client/
-    restart: always
-    depends_on:
-      - es01
-    networks:
-      proxy0:
-        aliases:
-          - client
-      http_client_proxy0:
-        aliases:
-          - http
-  """
 networks:
+  #managment network
   mgmt0:
-  client0:
-  client1:
-  server0:
-  server1:
-  proxy0:
-  proxy1:
+
+
+  #HTTP
+  #proxy backend (between the stunnel instances)
+  http-proxy-backend:
+  #proxy between the client and stunnel client instance
+  http-proxy-from-client:
+  #proxy between the server and stunnel server instance
+  http-proxy-to-server:
+
+  #MQTT
+  #proxy between the client stunnel instnaces
+  mqtt-client-backend:
+  #proxy between the server stunnel instances
+  mqtt-server-backend:
+  #proxy between the client and client stunnel instance
+  mqtt-client-to-broker:
+  #proxy between the server and server stunnel instance
+  mqtt-server-to-broker:
+  #mqtt broker network
+  mqtt-broker:
 
 volumes:
   data01:
