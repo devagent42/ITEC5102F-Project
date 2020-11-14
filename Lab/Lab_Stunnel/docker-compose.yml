@@ -114,8 +114,9 @@ services:
       http-proxy-to-server:
     command: bash -c "stunnel4 && tail -f /dev/null"
 
-
-  mqtt-client0:
+  #MQTT
+  #MQTT Client
+  mqtt-client:
     container_name: MQTT-Client
     build: ./mqtt-client/
     restart: always
@@ -123,8 +124,10 @@ services:
       - mqtt-broker
       - es01
     networks:
+      mqtt-client-to-broker:
       mgmt0:
-  mqtt-server0:
+  #MQTT Server
+  mqtt-server:
     container_name: MQTT-Server
     build: ./mqtt-server/
     restart: always
@@ -132,7 +135,71 @@ services:
       - mqtt-broker
       - es01
     networks:
+      mqtt-server-to-broker:
       mgmt0:
+
+  #MQTT Client Stunnel Instance
+  mqtt-from-client-to-backend-stunnel:
+    container_name: Stunnel-MQTT-from-client-to-backend
+    build: ./stunnel/
+    restart: always
+    volumes:
+      - ./stunnel_configs/stunnel4:/etc/default/stunnel4
+      - ./stunnel_configs/psk.txt:/etc/stunnel/psk.txt
+      - ./stunnel_configs/stunnel_client.conf:/etc/stunnel/stunnel.conf
+    networks:
+      mqtt-client-backend:
+      mqtt-client-to-broker:
+        aliases:
+          - mqtt
+    command: bash -c "stunnel4 && tail -f /dev/null"
+  mqtt-client-to-broker-stunnel:
+    container_name: Stunnel-MQTT-from-Client-to-Broker
+    build: ./stunnel/
+    restart: always
+    volumes:
+      - ./stunnel_configs/stunnel4:/etc/default/stunnel4
+      - ./stunnel_configs/psk.txt:/etc/stunnel/psk.txt
+      - ./stunnel_configs/stunnel_server.conf:/etc/stunnel/stunnel.conf
+    networks:
+      mqtt-client-backend:
+        aliases:
+          - stunnelserver
+      mqtt-broker:
+    command: bash -c "stunnel4 && tail -f /dev/null"
+
+
+
+  #MQTT Server Stunnel Instance
+  mqtt-from-server-to-backend-stunnel:
+    container_name: Stunnel-MQTT-from-Server-to-backend
+    build: ./stunnel/
+    restart: always
+    volumes:
+      - ./stunnel_configs/stunnel4:/etc/default/stunnel4
+      - ./stunnel_configs/psk.txt:/etc/stunnel/psk.txt
+      - ./stunnel_configs/stunnel_client.conf:/etc/stunnel/stunnel.conf
+    networks:
+      mqtt-server-backend:
+      mqtt-server-to-broker:
+        aliases:
+          - mqtt
+    command: bash -c "stunnel4 && tail -f /dev/null"
+  mqtt-server-to-broker-stunnel:
+    container_name: Stunnel-MQTT-from-Server-to-Broker
+    build: ./stunnel/
+    restart: always
+    volumes:
+      - ./stunnel_configs/stunnel4:/etc/default/stunnel4
+      - ./stunnel_configs/psk.txt:/etc/stunnel/psk.txt
+      - ./stunnel_configs/stunnel_server.conf:/etc/stunnel/stunnel.conf
+    networks:
+      mqtt-server-backend:
+        aliases:
+          - stunnelserver
+      mqtt-broker:
+    command: bash -c "stunnel4 && tail -f /dev/null"
+
 
 networks:
   #managment network
