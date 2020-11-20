@@ -1,0 +1,102 @@
+version: '3'
+
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
+    ports:
+      - 9200:9200
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    networks:
+      mgmt0:
+        aliases:
+          - es01
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es01:9200
+    ports:
+      - 5601:5601
+    networks:
+      mgmt0:
+        aliases:
+          - kibana
+  mqtt-broker:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./Backend/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      mgmt0:
+        aliases:
+          - mqtt
+  sys-mqtt-to-es:
+    build: ./sys-mqtt-to-es/
+    restart: always
+    depends_on:
+      - es01
+      - mqtt-broker
+      - kibana
+    networks:
+      mgmt0:
+
+  mqtt-client0:
+    build: ./mqtt-client/
+    restart: always
+    depends_on:
+      - mqtt-broker
+      - es01
+    networks:
+      mgmt0:
+  mqtt-server0:
+    build: ./mqtt-server/
+    restart: always
+    depends_on:
+      - mqtt-broker
+      - es01
+    networks:
+      mgmt0:
+  http-server0:
+    build: ./http-server/
+    restart: always
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
+        aliases:
+          - http
+  http-client0:
+    build: ./http-client/
+    restart: always
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
+
+  
+networks:
+  mgmt0:
+  client0:
+  client1:
+  server0:
+  server1:
+  proxy0:
+  proxy1:
+
+volumes:
+  data01:
+    driver: local
