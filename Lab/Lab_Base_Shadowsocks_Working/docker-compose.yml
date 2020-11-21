@@ -70,32 +70,54 @@ services:
       - es01
     networks:
       mgmt0:
+  http-client:
+    build: ./http-client/
+    restart: always
+    networks:
+      http-proxy-client:
+      mgmt0:
+  http-client-proxy:
+    build: ./http-proxy-server/
+    restart: always
+    volumes:
+      - ./Dependencies/shadowsocks.client.conf.json:/etc/shadowsocks-libev/config.json
+    command: bash -c "ss-local && tail -f /dev/null"
+    networks:
+      http-proxy-backbone:
+      http-proxy-client:
+        aliases:
+          - proxy
+  http-server-proxy:
+    build: ./http-proxy-server/
+    restart: always
+    volumes:
+      - ./Dependencies/shadowsocks.server.conf.json:/etc/shadowsocks-libev/config.json
+    command: bash -c "ss-server && tail -f /dev/null"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      http-proxy-backbone:
+        aliases:
+          - http-proxy
+      http-proxy-server:
   http-server0:
     build: ./http-server/
     restart: always
-    depends_on:
-      - es01
+    #depends_on:
+    #  - es01
     networks:
+      http-proxy-server:
+        ipv4_address: 172.16.238.10
       mgmt0:
-        aliases:
-          - http
-  http-client0:
-    build: ./http-client/
-    restart: always
-    depends_on:
-      - es01
-    networks:
-      mgmt0:
-
-  
 networks:
   mgmt0:
-  client0:
-  client1:
-  server0:
-  server1:
-  proxy0:
-  proxy1:
+  http-proxy-backbone:
+  http-proxy-client:
+  http-proxy-server:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.238.0/24"
 
 volumes:
   data01:

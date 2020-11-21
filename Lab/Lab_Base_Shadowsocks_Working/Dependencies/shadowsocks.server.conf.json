@@ -1,0 +1,9 @@
+{
+    "server":["0.0.0.0"],
+    "mode":"tcp_only",
+    "server_port":8888,
+    "local_port":9999,
+    "password":"ACRrobo9ymXb",
+    "timeout":60,
+    "method":"chacha20-ietf-poly1305"
+}

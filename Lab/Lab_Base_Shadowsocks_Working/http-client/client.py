@@ -15,7 +15,10 @@ if local:
     httpHost = 'localhost'
 else:
     esHost = "es01"
-    httpHost = 'http'
+    httpHost = '172.16.238.10'
+
+proxies = {'http': "socks5://proxy:7777"}
+
 
 es = Elasticsearch(host=esHost)
 
@@ -24,7 +27,7 @@ while True:
     response = requests.post('http://'+httpHost+':5000/process_data',
                             json={"type": "secret", "secret": str(secret_passwrd), "client_time": str(now.isoformat()),
                                   "device": "http_client",
-                                  "client_ID": str(ID)})
+                                  "client_ID": str(ID)},proxies=proxies)
 
     #print("Status code: ", response.status_code)
     secret = {"timestamp":datetime.utcnow(),"type": "secret", "secret": str(secret_passwrd), "client_time": now, "device": "http_client", "client_ID": str(ID)}
