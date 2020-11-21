@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  
+  http-server0:
+    build: ./http-server/
+    restart: always
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
+        aliases:
+          - http
+  http-client0:
+    build: ./http-client/
+    restart: always
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
+
+
+networks:
+  mgmt0:
+  client0:
+  client1:
+  server0:
+  server1:
+  proxy0:
+  proxy1:
+
+volumes:
+  data01:
+    driver: local
