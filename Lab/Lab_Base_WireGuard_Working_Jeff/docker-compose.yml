@@ -31,6 +31,48 @@ services:
         aliases:
           - kibana
 
+  mqtt-proxy-broker:
+    build: ./mqtt-proxy/
+    restart: always
+    cap_add:
+       - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-broker.conf:/etc/wireguard/wg0.conf
+      - ./nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-proxy-backbone:
+        aliases:
+           - wgbroker
+      mqtt-proxy-broker:
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+  mqtt-proxy-server:
+    build: ./mqtt-proxy/
+    restart: always
+    cap_add:
+       - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
+      - ./nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-proxy-backbone:
+        aliases:
+          - wgserver
+      mqtt-proxy-server:
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+  mqtt-proxy-client:
+    build: ./mqtt-proxy/
+    restart: always
+    cap_add:
+       - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
+      - ./nginx-configs/client.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-proxy-backbone:
+      mqtt-proxy-client:
+        aliases:
+          - mqtt
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
   mqtt-broker:
     image: eclipse-mosquitto
     hostname: mosquitto
@@ -45,7 +87,6 @@ services:
       mgmt0:
         aliases:
           - mqtt
-
   sys-mqtt-to-es:
     build: ./sys-mqtt-to-es/
     restart: always
@@ -55,7 +96,6 @@ services:
       - kibana
     networks:
       mgmt0:
-
   mqtt-client0:
     build: ./mqtt-client/
     restart: always
@@ -73,57 +113,12 @@ services:
     networks:
       mgmt0:
 
-  http-proxy-server:
-    build: ./http-proxy/
-    restart: always
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
-      - ./nginx-configs/server.conf:/etc/nginx/nginx.conf
-    networks:
-      http-proxy-backbone:
-        aliases:
-          - wgserver
-      http-proxy-server:
-    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
-  http-proxy-client:
-    build: ./http-proxy/
-    restart: always
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
-      - ./nginx-configs/client.conf:/etc/nginx/nginx.conf
-    networks:
-      http-proxy-backbone:
-      http-proxy-client:
-        aliases:
-          - http
-    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
-  http-server0:
-    build: ./http-server/
-    restart: always
-    #depends_on:
-    #  - es01
-    networks:
-      http-proxy-server:
-        aliases:
-          - http
-      mgmt0:
-  http-client0:
-    build: ./http-client/
-    restart: always
-    #depends_on:
-    #  - es01
-    networks:
-      mgmt0:
-      http-proxy-client:
 networks:
   mgmt0:
-  http-proxy-server:
-  http-proxy-client:
-  http-proxy-backbone:
+  mqtt-proxy-server:
+  mqtt-proxy-broker:
+  mqtt-proxy-client:
+  mqtt-proxy-backbone:
 
 volumes:
   data01:
