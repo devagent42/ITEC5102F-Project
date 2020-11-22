@@ -200,6 +200,16 @@ services:
       mqtt-broker:
     command: bash -c "stunnel4 && tail -f /dev/null"
 
+  stats:
+    container_name: stats
+    build: ./docker-stats/
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
 
 networks:
   #managment network

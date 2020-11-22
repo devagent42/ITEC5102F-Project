@@ -3,6 +3,7 @@ version: '3'
 services:
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
+    container_name: elasticsearch
     ports:
       - 9200:9200
     environment:
@@ -20,7 +21,9 @@ services:
       mgmt0:
         aliases:
           - es01
+          - elasticsearch
   kibana:
+    container_name: kibana
     image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
       - ELASTICSEARCH_HOSTS=http://es01:9200
@@ -31,6 +34,7 @@ services:
         aliases:
           - kibana
   mqtt-broker:
+    container_name: mqtt-broker
     image: eclipse-mosquitto
     hostname: mosquitto
     environment:
@@ -44,17 +48,19 @@ services:
       mgmt0:
         aliases:
           - mqtt
-  sys-mqtt-to-es:
-    build: ./sys-mqtt-to-es/
-    restart: always
-    depends_on:
-      - es01
-      - mqtt-broker
-      - kibana
-    networks:
-      mgmt0:
+  #sys-mqtt-to-es:
+  #  container_name: elasticsearch
+  #  build: ./sys-mqtt-to-es/
+  #  restart: always
+  #  depends_on:
+  #    - es01
+  #    - mqtt-broker
+  #    - kibana
+  #  networks:
+  #    mgmt0:
 
   mqtt-client0:
+    container_name: mqtt-client
     build: ./mqtt-client/
     restart: always
     depends_on:
@@ -63,6 +69,7 @@ services:
     networks:
       mgmt0:
   mqtt-server0:
+    container_name: mqtt-server
     build: ./mqtt-server/
     restart: always
     depends_on:
@@ -71,6 +78,7 @@ services:
     networks:
       mgmt0:
   http-server0:
+    container_name: http-server
     build: ./http-server/
     restart: always
     depends_on:
@@ -80,14 +88,24 @@ services:
         aliases:
           - http
   http-client0:
+    container_name: http-clients
     build: ./http-client/
     restart: always
     depends_on:
       - es01
     networks:
       mgmt0:
+  stats:
+    container_name: stats
+    build: ./docker-stats/
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
 
-  
 networks:
   mgmt0:
   client0:
