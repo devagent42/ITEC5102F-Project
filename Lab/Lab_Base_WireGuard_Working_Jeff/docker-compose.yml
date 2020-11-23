@@ -61,8 +61,7 @@ services:
         aliases:
           - wgserver
       mqtt-client-broker-proxy:
-        aliases:
-          - mqtt
+
     command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
 
   mqtt-server-broker-proxy:
@@ -78,8 +77,6 @@ services:
         aliases:
           - wgserver
       mqtt-server-broker-proxy:
-        aliases:
-          - mqtt
     command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
 
   mqtt-proxy-server:
@@ -112,6 +109,12 @@ services:
       - ./Backend/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
     networks:
       mgmt0:
+        aliases:
+          - mqtt
+      mqtt-server-broker-proxy:
+        aliases:
+          - mqtt
+      mqtt-client-broker-proxy:
         aliases:
           - mqtt
   sys-mqtt-to-es:
