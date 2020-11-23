@@ -114,6 +114,9 @@ services:
       mqtt-client-broker-proxy:
         aliases:
           - mqtt
+      mgmt0:
+        aliases:
+          - mqtt
   sys-mqtt-to-es:
     build: ./sys-mqtt-to-es/
     restart: always
@@ -123,6 +126,7 @@ services:
       - kibana
     networks:
       mgmt0:
+
   mqtt-client0:
     build: ./mqtt-client/
     restart: always
