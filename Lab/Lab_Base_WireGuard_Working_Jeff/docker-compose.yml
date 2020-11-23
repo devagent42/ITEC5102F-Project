@@ -131,6 +131,7 @@ services:
       - es01
     networks:
       mqtt-client-proxy:
+      mgmt0:
   mqtt-server0:
     build: ./mqtt-server/
     restart: always
@@ -139,6 +140,7 @@ services:
       - es01
     networks:
       mqtt-server-proxy:
+      mgmt0:
 
 networks:
   mgmt0:
