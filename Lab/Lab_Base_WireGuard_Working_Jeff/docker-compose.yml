@@ -40,41 +40,47 @@ services:
       - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
       - ./nginx-configs/client.conf:/etc/nginx/nginx.conf
     networks:
-      mqtt-client-proxy:
+      mqtt-client-backbone:
         aliases:
            - wgclient
-      mqtt-client-backbone:
+      mqtt-client-proxy:
+        aliases:
+           - mqtt
     command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
 
   mqtt-client-broker-proxy:
     build: ./mqtt-proxy/
-      restart: always
-      cap_add:
-        - NET_ADMIN
-      volumes:
-        - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
-        - ./nginx-configs/server.conf:/etc/nginx/nginx.conf
-      networks:
-        mqtt-client-broker-proxy:
-          aliases:
-            - wgserver
-        mqtt-client-backbone:
-      command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
+      - ./nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-client-backbone:
+        aliases:
+          - wgserver
+      mqtt-client-broker-proxy:
+        aliases:
+          - mqtt
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
 
   mqtt-server-broker-proxy:
     build: ./mqtt-proxy/
-      restart: always
-      cap_add:
-        - NET_ADMIN
-      volumes:
-        - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
-        - ./nginx-configs/server.conf:/etc/nginx/nginx.conf
-      networks:
-        mqtt-server-broker-proxy:
-          aliases:
-            - wgserver
-        mqtt-server-backbone:
-      command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
+      - ./nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-server-backbone:
+        aliases:
+          - wgserver
+      mqtt-server-broker-proxy:
+        aliases:
+          - mqtt
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
 
   mqtt-proxy-server:
     build: ./mqtt-proxy/
@@ -85,10 +91,12 @@ services:
       - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
       - ./nginx-configs/client.conf:/etc/nginx/nginx.conf
     networks:
-      mqtt-server-proxy:
+      mqtt-server-backbone:
         aliases:
           - wgclient
-      mqtt-server-backbone:
+      mqtt-server-proxy:
+        aliases:
+          - mqtt
     command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
 
 
