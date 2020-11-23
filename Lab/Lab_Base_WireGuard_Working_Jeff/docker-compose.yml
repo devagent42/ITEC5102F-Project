@@ -108,9 +108,6 @@ services:
     volumes:
       - ./Backend/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
     networks:
-      mgmt0:
-        aliases:
-          - mqtt
       mqtt-server-broker-proxy:
         aliases:
           - mqtt
@@ -133,7 +130,7 @@ services:
       - mqtt-broker
       - es01
     networks:
-      mgmt0:
+      mqtt-client-proxy:
   mqtt-server0:
     build: ./mqtt-server/
     restart: always
@@ -141,7 +138,7 @@ services:
       - mqtt-broker
       - es01
     networks:
-      mgmt0:
+      mqtt-server-proxy:
 
 networks:
   mgmt0:
