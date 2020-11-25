@@ -30,6 +30,73 @@ services:
       mgmt0:
         aliases:
           - kibana
+
+  mqtt-proxy-client:
+    build: ./mqtt-proxy/
+    restart: always
+    cap_add:
+       - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
+      - ./mqtt-nginx-configs/client.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-client-backbone:
+        aliases:
+           - wgclient
+      mqtt-client-proxy:
+        aliases:
+           - mqtt
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+
+  mqtt-client-broker-proxy:
+    build: ./mqtt-proxy/
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
+      - ./mqtt-nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-client-backbone:
+        aliases:
+          - wgserver
+      mqtt-client-broker-proxy:
+
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+
+  mqtt-server-broker-proxy:
+    build: ./mqtt-proxy/
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
+      - ./mqtt-nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-server-backbone:
+        aliases:
+          - wgserver
+      mqtt-server-broker-proxy:
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+
+  mqtt-proxy-server:
+    build: ./mqtt-proxy/
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
+      - ./mqtt-nginx-configs/client.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-server-backbone:
+        aliases:
+          - wgclient
+      mqtt-server-proxy:
+        aliases:
+          - mqtt
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+
+
   mqtt-broker:
     image: eclipse-mosquitto
     hostname: mosquitto
@@ -41,6 +108,12 @@ services:
     volumes:
       - ./Backend/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
     networks:
+      mqtt-server-broker-proxy:
+        aliases:
+          - mqtt
+      mqtt-client-broker-proxy:
+        aliases:
+          - mqtt
       mgmt0:
         aliases:
           - mqtt
@@ -61,6 +134,7 @@ services:
       - mqtt-broker
       - es01
     networks:
+      mqtt-client-proxy:
       mgmt0:
   mqtt-server0:
     build: ./mqtt-server/
@@ -69,33 +143,17 @@ services:
       - mqtt-broker
       - es01
     networks:
-      mgmt0:
-  http-server0:
-    build: ./http-server/
-    restart: always
-    depends_on:
-      - es01
-    networks:
-      mgmt0:
-        aliases:
-          - http
-  http-client0:
-    build: ./http-client/
-    restart: always
-    depends_on:
-      - es01
-    networks:
+      mqtt-server-proxy:
       mgmt0:
 
-  
 networks:
   mgmt0:
-  client0:
-  client1:
-  server0:
-  server1:
-  proxy0:
-  proxy1:
+  mqtt-client-proxy:
+  mqtt-client-backbone:
+  mqtt-client-broker-proxy:
+  mqtt-server-broker-proxy:
+  mqtt-server-backbone:
+  mqtt-server-proxy:
 
 volumes:
   data01:
