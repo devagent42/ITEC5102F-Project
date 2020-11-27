@@ -4,6 +4,8 @@ from datetime import datetime
 import json
 import time
 from elasticsearch import Elasticsearch
+import ntplib
+from time import ctime
 
 local = False
 
@@ -29,7 +31,9 @@ def process_data():
     data = json.loads(data)
     data["client_time"] = datetime.fromisoformat(str(data["client_time"]))
     #print (type(data["client_time"]))
-    body = {"timestamp":datetime.utcnow(),"server_time":datetime.utcnow(),"device":"http_server","message":data}
+    now = datetime.utcnow()
+
+    body = {"timestamp":now,"server_time":now,"device":"http_server","message":data}
     es.index(index="data", doc_type="_doc", body=body)
 
     return "Well received!!!"

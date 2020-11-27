@@ -117,6 +117,7 @@ services:
       mgmt0:
         aliases:
           - mqtt
+  
   sys-mqtt-to-es:
     build: ./sys-mqtt-to-es/
     restart: always

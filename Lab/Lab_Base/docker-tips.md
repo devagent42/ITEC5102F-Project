@@ -18,3 +18,5 @@ CMD [ "python", "/server.py" ]
 - Third line copies the server python file to /
 - Fourth runs the python file.
 ***NOTE*** You need an infinite loop in the python file otherwise it will exit.
+
+Kibana saved objects link: http://localhost:5601/app/management/kibana/objects

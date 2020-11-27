@@ -23,9 +23,9 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     try:
-        es.index(index="sys-data", doc_type="_doc", body={"topic" : msg.topic, "dataFloat" : float(msg.payload), "timestamp": datetime.utcnow()})
+        es.index(index="stats", doc_type="_doc", body={"topic" : msg.topic, "dataFloat" : float(msg.payload), "timestamp": datetime.utcnow()})
     except:
-        es.index(index="sys-data", doc_type="_doc", body={"topic" : msg.topic, "dataString" : str(msg.payload, 'utf-8'), "timestamp": datetime.utcnow()})
+        es.index(index="stats", doc_type="_doc", body={"topic" : msg.topic, "dataString" : str(msg.payload, 'utf-8'), "timestamp": datetime.utcnow()})
 es = Elasticsearch(host='es01')
 
 client = mqtt.Client()
