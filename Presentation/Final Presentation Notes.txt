@@ -1,0 +1,23 @@
+Final Presentation:
+
+Introduction (1 slide):
+
+Components: 
+	-Lab base - Jeff
+	-http client-server - Jeff
+	-mqtt client-server - Jeff
+
+Encryption Services:
+	Architecture of the environments:
+		-Wireguard - diagram for http/mqtt - Jeff
+		-Shadowsocks - diagram for http/mqtt
+		-STunnel - diagram for http/mqtt
+
+Results:
+	-explain elasticsearch and its role in the project
+	-Diagram describing how analytics are gathered - Jeff
+	-comparison of environments
+		-screen shots of results
+		-pros and cons of each
+
+
