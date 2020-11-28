@@ -49,21 +49,11 @@ services:
       mqtt-broker:
         aliases:
           - mqtt
-  sys-mqtt-to-es:
-    build: ./sys-mqtt-to-es/
-    container_name: System-to-Elastic
-    restart: always
-    depends_on:
-      - es01
-      - mqtt-broker
-      - kibana
-    networks:
-      mqtt-broker:
-      mgmt0:
+
 
   #HTTP
   http-server0:
-    container_name: HTTP-Server
+    container_name: http-server
     build: ./http-server/
     restart: always
     depends_on:
@@ -74,7 +64,7 @@ services:
           - server
       mgmt0:
   http-client0:
-    container_name: HTTP-Client
+    container_name: http-clients
     build: ./http-client/
     restart: always
     depends_on:
@@ -117,7 +107,7 @@ services:
   #MQTT
   #MQTT Client
   mqtt-client:
-    container_name: MQTT-Client
+    container_name: mqtt-client
     build: ./mqtt-client/
     restart: always
     depends_on:
@@ -128,7 +118,7 @@ services:
       mgmt0:
   #MQTT Server
   mqtt-server:
-    container_name: MQTT-Server
+    container_name: mqtt-server
     build: ./mqtt-server/
     restart: always
     depends_on:

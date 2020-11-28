@@ -135,7 +135,7 @@ services:
     command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
 
   mqtt-client0:
-    container_name: MQTT-Client
+    container_name: mqtt-client
     build: ./mqtt-client/
     restart: always
     depends_on:
@@ -145,7 +145,7 @@ services:
       mqtt-client-proxy:
       mgmt0:
   mqtt-server0:
-    container_name: MQTT-Server
+    container_name: mqtt-server
     build: ./mqtt-server/
     restart: always
     depends_on:
@@ -186,7 +186,7 @@ services:
           - http
     command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
   http-server0:
-    container_name: HTTP-Server
+    container_name: http-server
     build: ./http-server/
     restart: always
     #depends_on:
@@ -197,7 +197,7 @@ services:
           - http
       mgmt0:
   http-client0:
-    container_name: HTTP-Client
+    container_name: http-clients
     build: ./http-client/
     restart: always
     #depends_on:

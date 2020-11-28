@@ -2,6 +2,7 @@ version: '3'
 
 services:
   es01:
+    container_name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
     ports:
       - 9200:9200
@@ -21,6 +22,7 @@ services:
         aliases:
           - es01
   kibana:
+    container_name: kibana
     image: docker.elastic.co/kibana/kibana-oss:7.9.3
     environment:
       - ELASTICSEARCH_HOSTS=http://es01:9200
@@ -44,17 +46,9 @@ services:
       mgmt0:
         aliases:
           - mqtt
-  sys-mqtt-to-es:
-    build: ./sys-mqtt-to-es/
-    restart: always
-    depends_on:
-      - es01
-      - mqtt-broker
-      - kibana
-    networks:
-      mgmt0:
 
   mqtt-client0:
+    container_name: mqtt-client
     build: ./mqtt-client/
     restart: always
     depends_on:
@@ -63,6 +57,7 @@ services:
     networks:
       mgmt0:
   mqtt-server0:
+    container_name: mqtt-server
     build: ./mqtt-server/
     restart: always
     depends_on:
@@ -71,12 +66,14 @@ services:
     networks:
       mgmt0:
   http-client:
+    container_name: http-clients
     build: ./http-client/
     restart: always
     networks:
       http-proxy-client:
       mgmt0:
   http-client-proxy:
+    container_name: http-client-proxy
     build: ./http-proxy-server/
     restart: always
     volumes:
@@ -88,6 +85,7 @@ services:
         aliases:
           - proxy
   http-server-proxy:
+    container_name: http-server-proxy
     build: ./http-proxy-server/
     restart: always
     volumes:
@@ -101,6 +99,7 @@ services:
           - http-proxy
       http-proxy-server:
   http-server0:
+    container_name: http-server
     build: ./http-server/
     restart: always
     #depends_on:
