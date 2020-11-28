@@ -4,8 +4,6 @@ from datetime import datetime
 import json
 import time
 from elasticsearch import Elasticsearch
-import ntplib
-from time import ctime
 
 local = False
 

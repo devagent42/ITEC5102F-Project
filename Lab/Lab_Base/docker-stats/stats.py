@@ -5,10 +5,9 @@ from datetime import datetime
 import uuid
 import json
 import requests
-import ntplib
 client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
-local = True
+local = False
 
 if local:
     esHost = 'localhost'
