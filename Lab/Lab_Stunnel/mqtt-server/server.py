@@ -25,7 +25,8 @@ def on_message(client, userdata, msg):
     #try:
     msg = json.loads(msg.payload)
     msg["client_time"] = datetime.fromtimestamp(msg["client_time"])
-    body = {"timestamp":datetime.utcnow(),"server_time":datetime.utcnow(),"device":"mqtt_server","message":msg}
+    now = datetime.utcnow()
+    body = {"timestamp":now,"server_time":now,"device":"mqtt_server","message":msg}
     print (body)
     es.index(index="data", doc_type="_doc", body=body)
     #except:

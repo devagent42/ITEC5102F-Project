@@ -10,6 +10,7 @@ ID = str(ID).replace('-', '')
 
 local = False
 
+
 if local:
     esHost = 'localhost'
     httpHost = 'localhost'
