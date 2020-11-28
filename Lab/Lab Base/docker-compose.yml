@@ -96,7 +96,7 @@ services:
     networks:
       mgmt0:
   stats:
-    container_name: stats
+    container_name: Stats
     build: ./docker-stats/
     restart: always
     volumes:

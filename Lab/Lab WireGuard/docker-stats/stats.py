@@ -5,6 +5,7 @@ from datetime import datetime
 import uuid
 import json
 import requests
+
 client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
 local = False
@@ -15,11 +16,6 @@ else:
     esHost = "es01"
 
 es = Elasticsearch(host=esHost)
-
-def getTime():
-    c = ntplib.NTPClient()
-    response = c.request('time.nrc.ca', version=3)
-    return response.tx_time
 
 
 # this is taken directly from docker client:
@@ -37,19 +33,17 @@ def calculate_cpu_percent(d):
 
 
 
-#while True:
+while True:
 #datetime.fromtimestamp(getTime())#.strftime('%Y-%m-%d %H:%M:%S.%f'))
-
-
-for container in client.containers.list():
-    now = datetime.utcnow()
-    stats = container.stats(stream=False)
-    #print (json.dumps(stats))
-    memory = (stats["memory_stats"]["usage"]/stats["memory_stats"]["limit"])*100
-    name = (stats["name"]).strip("/")
-    network_stats = stats["networks"]
-    real_stats = {"cores":stats["cpu_stats"]["online_cpus"],"cpu_usage":calculate_cpu_percent(stats),"name":name,"memory_usage":memory,"network_stats":network_stats}
-    msg = {"id":uuid.uuid4(),"timestamp":now,"stats":real_stats}
-    #print (msg)
-    es.index(index="stats", doc_type="_doc", body=msg)
-    #time.sleep(5)
+    for container in client.containers.list():
+        now = datetime.utcnow()
+        stats = container.stats(stream=False)
+        #print (json.dumps(stats))
+        memory = (stats["memory_stats"]["usage"]/stats["memory_stats"]["limit"])*100
+        name = (stats["name"]).strip("/")
+        network_stats = stats["networks"]
+        real_stats = {"cores":stats["cpu_stats"]["online_cpus"],"cpu_usage":calculate_cpu_percent(stats),"name":name,"memory_usage":memory,"network_stats":network_stats}
+        msg = {"id":uuid.uuid4(),"timestamp":now,"stats":real_stats}
+        #print (msg)
+        es.index(index="stats", doc_type="_doc", body=msg)
+    time.sleep(5)
