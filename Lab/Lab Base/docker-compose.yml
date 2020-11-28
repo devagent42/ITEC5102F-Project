@@ -48,16 +48,7 @@ services:
       mgmt0:
         aliases:
           - mqtt
-  #sys-mqtt-to-es:
-  #  container_name: elasticsearch
-  #  build: ./sys-mqtt-to-es/
-  #  restart: always
-  #  depends_on:
-  #    - es01
-  #    - mqtt-broker
-  #    - kibana
-  #  networks:
-  #    mgmt0:
+
 
   mqtt-client0:
     container_name: mqtt-client
