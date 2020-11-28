@@ -1,0 +1,222 @@
+version: '3'
+
+services:
+  #Backend Section
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.9.3
+    container_name: Elasticsearch
+    ports:
+      - 9200:9200
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    networks:
+      mgmt0:
+        aliases:
+          - es01
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:7.9.3
+    container_name: Kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es01:9200
+    ports:
+      - 5601:5601
+    networks:
+      mgmt0:
+        aliases:
+          - kibana
+  mqtt-broker:
+    container_name: MQTT-Broker
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./Backend/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      mqtt-server-broker-proxy:
+        aliases:
+          - mqtt
+      mqtt-client-broker-proxy:
+        aliases:
+          - mqtt
+      mgmt0:
+
+  stats:
+    container_name: Stats
+    build: ./docker-stats/
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - es01
+    networks:
+      mgmt0:
+  #MQTT Section
+
+  mqtt-proxy-client:
+    build: ./proxy/
+    container_name: MQTT-Proxy-Client
+    restart: always
+    cap_add:
+       - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
+      - ./mqtt-nginx-configs/client.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-client-backbone:
+        aliases:
+           - wgclient
+      mqtt-client-proxy:
+        aliases:
+           - mqtt
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+
+  mqtt-client-broker-proxy:
+    container_name: MQTT-Client-Broker-Proxy
+    build: ./proxy/
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
+      - ./mqtt-nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-client-backbone:
+        aliases:
+          - wgserver
+      mqtt-client-broker-proxy:
+
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+
+  mqtt-server-broker-proxy:
+    container_name: MQTT-Server-Broker-Proxy
+    build: ./proxy/
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
+      - ./mqtt-nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-server-backbone:
+        aliases:
+          - wgserver
+      mqtt-server-broker-proxy:
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+
+  mqtt-proxy-server:
+    container_name: MQTT-Proxy-Server
+    build: ./proxy/
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
+      - ./mqtt-nginx-configs/client.conf:/etc/nginx/nginx.conf
+    networks:
+      mqtt-server-backbone:
+        aliases:
+          - wgclient
+      mqtt-server-proxy:
+        aliases:
+          - mqtt
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+
+  mqtt-client0:
+    container_name: MQTT-Client
+    build: ./mqtt-client/
+    restart: always
+    depends_on:
+      - mqtt-broker
+      - es01
+    networks:
+      mqtt-client-proxy:
+      mgmt0:
+  mqtt-server0:
+    container_name: MQTT-Server
+    build: ./mqtt-server/
+    restart: always
+    depends_on:
+      - mqtt-broker
+      - es01
+    networks:
+      mqtt-server-proxy:
+      mgmt0:
+  #HTTP Section
+  http-proxy-server:
+    container_name: HTTP-Proxy-Server
+    build: ./proxy/
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-server.conf:/etc/wireguard/wg0.conf
+      - ./http-nginx-configs/server.conf:/etc/nginx/nginx.conf
+    networks:
+      http-proxy-backbone:
+        aliases:
+          - wgserver
+      http-proxy-server:
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+  http-proxy-client:
+    container_name: HTTP-Proxy-Client
+    build: ./proxy/
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./wireguard-configs/wg0-client.conf:/etc/wireguard/wg0.conf
+      - ./http-nginx-configs/client.conf:/etc/nginx/nginx.conf
+    networks:
+      http-proxy-backbone:
+      http-proxy-client:
+        aliases:
+          - http
+    command: bash -c "nginx && wg-quick up wg0 && tail -f /dev/null"
+  http-server0:
+    container_name: HTTP-Server
+    build: ./http-server/
+    restart: always
+    #depends_on:
+    #  - es01
+    networks:
+      http-proxy-server:
+        aliases:
+          - http
+      mgmt0:
+  http-client0:
+    container_name: HTTP-Client
+    build: ./http-client/
+    restart: always
+    #depends_on:
+    #  - es01
+    networks:
+      mgmt0:
+      http-proxy-client:
+networks:
+  mgmt0:
+  mqtt-client-proxy:
+  mqtt-client-backbone:
+  mqtt-client-broker-proxy:
+  mqtt-server-broker-proxy:
+  mqtt-server-backbone:
+  mqtt-server-proxy:
+  http-proxy-server:
+  http-proxy-client:
+  http-proxy-backbone:
+
+volumes:
+  data01:
+    driver: local
