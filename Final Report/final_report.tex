@@ -28,7 +28,7 @@ Ottawa, Canada \\
 fahmidahaque@cmail.carleton.ca}
 \and
 \IEEEauthorblockN{Jeff Bailey - 101020551}
-\IEEEauthorblockA{\textit{Department of Systems and Computer Engineering} \\
+\IEEEauthorblockA{\textit{Department of Systems} \\\textit{and Computer Engineering} \\
 \textit{Carleton University}\\
 Ottawa, Canada \\
 jeffbailey@cmail.carleton.ca}}
@@ -98,13 +98,21 @@ For this project we used some software in our lab that we determined that would 
 \section{Lab Setup}
 \subsection{Base Lab Setup}
 \subsection{Wireguard Lab Setup}
+Wireguard is a lightweight VPN intended for the Linux kernel, but is now available for Windows and macOS as well. It is a performance-oriented VPN that functions using a concept called Cryptokey Routing [1j]. This is a technique of assigning public keys to a list of allowable tunnel IP addresses, where each network interface is given a private key and a list of peers – keys are shared similarly to how SSH public keys are shared. Configuring Wireguard VPN’s is a relatively simple task, once Wireguard is installed it simply needs to be configured on each device, where one device acts as the server and the other devices respectively operate as clients. Each device’s configuration file contains the private key, public key of its peers, its listen port, and a list of allowed IP addresses. Wireguard can use IPv4 and IPv6 addresses [1j]. 
+
+Like most VPN’s Wireguard works on the network layer (layer 3) of the OSI model whereas the HTTP client-server and MQTT client-server programs of this environment operate on the application layer (layer 7) of the OSI model. As such, it must be interfaced properly to encrypt packets leaving the HTTP and MQTT services. The goal of this experimental environment is the same as in the other environments, encrypt the traffic coming from a service without changing the service itself, thus it is important not to alter the HTTP and MQTT containers. To connect the client and server through Wireguard an intermediate step is necessary connect from layer 7 down to layer 3. To do so, NGINX is used. NGINX is an open-source software that can be used for a multitude of web server-related use cases [2j]. In the case of this environment, it is used to stream data from the layer 7 applications, HTTP and MQTT, to the layer 3 Wireguard VPN. 
+
+To create a secure tunnel between the services, the client and server which are docker containers, Wireguard is implemented as a proxy container to connect them over the untrusted network. Then an NGINX container that streams and redirects incoming data to the correct ports is placed between the service containers and their respective Wireguard proxy containers for encryption (see figure 1j).
 \subsection{Stunnel Lab Setup}
 \subsection{Shadowsocks Lab Setup}
 \section{Results}
 \subsection{Base Results}
 \subsection{Wireguard Results}
+To gather the latency and CPU usage metrics of this environment the data is gathered through Elasticsearch and presented through Kibana. The average latency over 15 minutes of run time for this environment is 10.810ms and 4.002ms for HTTP and MQTT respectively. For CPU usage the entire environment required on average 0.542\% of the CPU and 0.465\% of memory. This is a 1.484ms and 2.170ms increase in latency for HTTP and MQTT respectively over the unencrypted environment.
 \subsection{Stunnel Results}
-\subsection{SHadowsocks Results}
+\subsection{Shadowsocks Results}
+\section{Analysis}
+\section{Literature Review}
 \begin{thebibliography}{00}
 \bibitem{what is a vpn} Norton, \textit{What is a VPN?}, Norton, 2020. Accessed on: September 20, 2020. [Online]. Available: \url{https://us.norton.com/internetsecurity-privacy-what-is-a-vpn.html}
 

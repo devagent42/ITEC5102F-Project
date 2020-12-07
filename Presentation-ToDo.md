@@ -49,7 +49,7 @@
       - Server subscirbes to a wildcard topic that all clients send messages to
       - Written in python
       - Uses default ports (1883 for server)
-      - TCP
+      - Uses TCP
 1. Stunnel Implementation
     - Docker containers
     - Docker-compose script
