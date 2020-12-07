@@ -36,13 +36,20 @@
     - Uses http
     - No SSL/security/authentication
     - Written in python
-    - Client uses the requests library
-      - Sends a POST request to "http" on port 5000 to /process_data
-      - Sends copy of message to Elasticsearch with timestamp
-    - Server uses Flask
-      - Listens on port 5000
-      - Accepts POST requests on port 5000 at /process_data
-      - Sends a copy of messages to Elasticsearch with timestamp
+    - HTTP
+      - Client uses the requests library
+        - Sends a POST request to "http" on port 5000 to /process_data
+        - Sends copy of message to Elasticsearch with timestamp
+      - Server uses Flask
+        - Listens on port 5000
+        - Accepts POST requests on port 5000 at /process_data
+        - Sends a copy of messages to Elasticsearch with timestamp
+    - MQTT
+      - Client sends messages with a "secret" to the broker on a given topic
+      - Server subscirbes to a wildcard topic that all clients send messages to
+      - Written in python
+      - Uses default ports (1883 for server)
+      - TCP
 1. Stunnel Implementation
     - Docker containers
     - Docker-compose script
@@ -68,9 +75,9 @@
     - Transparent Proxy implementation
     - Secure implementation, acutal security not in scope of this project (asym curve25519 keysy)
     - Uses NGINX to forward HTTP/MQTT TCP sessions
-      - Must convert a L7 to a L4
+      - Must convert a L7 to a L3
       - NGINX works at the application (L7)
-      - Wireguard is at network (L4)
+      - Wireguard is at network (L3)
     - NGINX works because MQTT and HTTP are TCP, probably would not work for UDP, would need to test (out of scope of this projects)
     - HTTP
       - "Bottom" NGINX takes in anything on port 5000
@@ -92,6 +99,7 @@
     - HTTP data is secured
     - MQTT python library does not support SOCKS5, no working MQTT implementation for SOCKS5
     - Dependant on the application supporting SOCKS5
+    - poly1305 and chacha20
 1. Stage 3 *Georges*
 1. Results Base
 1. Results Base - Wireshark
