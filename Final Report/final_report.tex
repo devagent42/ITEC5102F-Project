@@ -192,9 +192,10 @@ Even if with these limitation, we opted to see what metrics would be generated b
 \hline
  & \multicolumn{3}{c|}{\textbf{HTTP Server Latency}} & \multicolumn{3}{c|}{\textbf{MQTT Server Latency}} & \multicolumn{4}{c|}{} \\ \hline
 Scenario & \begin{tabular}[c]{@{}c@{}}Average\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Minimum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Maximum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average \\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Minimum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Maximum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average\\ CPU\\ (\%)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average\\ Memory\\ (\%)\end{tabular} & \begin{tabular}[c]{@{}c@{}}\#\\ Containers\end{tabular} & \begin{tabular}[c]{@{}c@{}}\#\\ Packet Drops\end{tabular} \\ \hline
-Base & \cellcolor[HTML]{FFCE93}9.326 & \cellcolor[HTML]{FFCE93}2 & \cellcolor[HTML]{FFCE93}16 & \cellcolor[HTML]{FFCE93}1.832 & \cellcolor[HTML]{FFCE93}0 & \cellcolor[HTML]{FFCE93}6 & \cellcolor[HTML]{FFCE93}0.849 & \cellcolor[HTML]{FFCE93}0.791 & \cellcolor[HTML]{FFCE93}9 & \cellcolor[HTML]{9AFF99}0 \\ \hline
+\rowcolor[HTML]{FFCE93} 
+Base & 9.326 & 2 & 16 & 1.832 & 0 & 6 & 0.849 & 0.791 & 9 & 0 \\ \hline
 \rowcolor[HTML]{FFCCC9} 
-Shadowsocks & 9.679 & 3 & 24 & \multicolumn{3}{c|}{\cellcolor[HTML]{FFCCC9}N/A} & 0.534 & 0.658 & 8 & 0 \\ \hline
+Shadowsocks & 9.679 & 3 & 24 & \multicolumn{3}{c|}{\cellcolor[HTML]{FFCCC9}N/A} & 0.534 & 0.658 & 11 & 0 \\ \hline
 Wireguard & \cellcolor[HTML]{9AFF99}10.81 & \cellcolor[HTML]{9AFF99}3 & \cellcolor[HTML]{9AFF99}19 & 4.002 & 1 & 12 & \cellcolor[HTML]{9AFF99}0.547 & \cellcolor[HTML]{9AFF99}0.465 & 13 & \cellcolor[HTML]{9AFF99}0 \\ \hline
 Stunnel & 16.943 & 4 & 56 & \cellcolor[HTML]{9AFF99}3.184 & \cellcolor[HTML]{9AFF99}1 & \cellcolor[HTML]{9AFF99}21 & 4.87 & 0.486 & 13 & \cellcolor[HTML]{9AFF99}0 \\ \hline
 \end{tabular}
