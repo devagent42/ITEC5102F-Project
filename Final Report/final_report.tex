@@ -8,12 +8,13 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{hyperref}
+\usepackage{lscape}
 \usepackage{xcolor}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Proposal: Cross Network Secure Service Networking}
+\title{Cross Network Secure Service Networking}
 
 \author{\IEEEauthorblockN{Georges Ankenmann - 100935237}
 \IEEEauthorblockA{\textit{School Of Information and Technology} \\
@@ -105,14 +106,58 @@ Like most VPN’s Wireguard works on the network layer (layer 3) of the OSI mode
 To create a secure tunnel between the services, the client and server which are docker containers, Wireguard is implemented as a proxy container to connect them over the untrusted network. Then an NGINX container that streams and redirects incoming data to the correct ports is placed between the service containers and their respective Wireguard proxy containers for encryption (see figure 1j).
 \subsection{Stunnel Lab Setup}
 \subsection{Shadowsocks Lab Setup}
-\section{Results}
+\section{Results and Analysis}
+To gather metrics, searches must be performed in the Elasticsearch database in order to extract the data. Kibana is used to visualize the searches. Saved objects are available on the project's GitHub\cite{github_repo} to replicate our searches. The Kibana saved objects loads some saved searches that automatically colour results. The table \ref{tab:kibana-colour} depicts the mapping of metrics to colour scheme used to automatically colour some of the data used in the graphs for this project. We determined these values after thinking what we believe to be "\textit{reasonable}". The colour is just to make the graphs pretty and easy to quickly analyze, the do not impact the results in anyway.
+
+Metrics are calculated on the latest 15 minutes of data based on the time of ingest into Elasticsearch. A table with our overall results is included in this report, see table \ref{tab:results} for details. If the reader wishes to replicate our project, Docker Compose scripts are available in the project's GitHub repository \cite{github_repo}.
+
 \subsection{Base Results}
+Over the most recent 15 minutes of run time for this environment, we found an average latency of 9.326ms and 1.832ms for HTTP and MQTT respectively. For CPU usage, the  
 \subsection{Wireguard Results}
-To gather the latency and CPU usage metrics of this environment the data is gathered through Elasticsearch and presented through Kibana. The average latency over 15 minutes of run time for this environment is 10.810ms and 4.002ms for HTTP and MQTT respectively. For CPU usage the entire environment required on average 0.542\% of the CPU and 0.465\% of memory. This is a 1.484ms and 2.170ms increase in latency for HTTP and MQTT respectively over the unencrypted environment.
+Over the most recent 15 minutes of run time for this environment, we found an average latency of 10.810ms and 4.002ms for HTTP and MQTT respectively. For CPU and memory usage, the entire environment averaged 0.542\% and 0.465\% respectively. This is a 1.484ms and 2.170ms increase in latency for HTTP and MQTT respectively over the unencrypted base environment. The reader 
 \subsection{Stunnel Results}
 \subsection{Shadowsocks Results}
-\section{Analysis}
+\subsection{Analysis}
 \section{Literature Review}
+\section{Appendix}
+\begin{table}[]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\multicolumn{3}{|c|}{\textbf{Kibana Colour Boxes (CPU and Memory)}} \\ \hline
+Colour & Value Start & Value End \\ \hline
+Green & 0 & 1 \\ \hline
+| & \textgreater{}1 & 5 \\ \hline
+Red & \textgreater{}10 & 100 \\ \hline
+\multicolumn{3}{|c|}{\textbf{Kibana Colour Boxes (Latency, in ms)}} \\ \hline
+Green & 0 &  \\ \hline
+| & 1 & 5 \\ \hline
+| & \textgreater{}5 & 10 \\ \hline
+| & \textgreater{}10 & 100 \\ \hline
+Red & \textgreater{}100 & 20000 \\ \hline
+\multicolumn{3}{|c|}{\textbf{\begin{tabular}[c]{@{}c@{}}Average Packet Drops and Errors\\ (occurrences)\end{tabular}}} \\ \hline
+Green & 0 & 5 \\ \hline
+Red & \textgreater{}5 & 99999999 \\ \hline
+\end{tabular}
+\caption{Kibana Colour Boxes}
+\label{tab:kibana-colour}
+\end{table}
+\begin{landscape}
+\begin{table}[]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+ & \multicolumn{3}{c|}{\textbf{HTTP Server Latency}} & \multicolumn{3}{c|}{\textbf{MQTT Server Latency}} &  &  &  \\ \hline
+Scenario & \begin{tabular}[c]{@{}c@{}}Average\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Minimum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Maximum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average \\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Minimum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Maximum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average\\ CPU\\ (\%)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average\\ Memory\\ (\%)\end{tabular} & \begin{tabular}[c]{@{}c@{}}\#\\ Containers\end{tabular} \\ \hline
+Base & 9.326 & 2 & 16 & 1.832 & 0 & 6 & 0.849 & 0.791 & 9 \\ \hline
+Shadowsocks & 9.679 & 3 & 24 & \multicolumn{3}{c|}{N/A} & 0.534 & 0.658 & 11 \\ \hline
+Wireguard & 10.81 & 3 & 19 & 4.002 & 1 & 12 & 0.547 & 0.465 & 13 \\ \hline
+Stunnel & 16.943 & 4 & 56 & 3.184 & 1 & 21 & 4.87 & 0.486 & 13 \\ \hline
+\end{tabular}
+\caption{Results table.}
+\label{tab:results}
+\end{table}
+\end{landscape}
 \begin{thebibliography}{00}
 \bibitem{what is a vpn} Norton, \textit{What is a VPN?}, Norton, 2020. Accessed on: September 20, 2020. [Online]. Available: \url{https://us.norton.com/internetsecurity-privacy-what-is-a-vpn.html}
 
@@ -134,4 +179,5 @@ To gather the latency and CPU usage metrics of this environment the data is gath
 \bibitem{iap_c} T. Treat, \textit{API Authentication with GCP Identity-Aware Proxy}, Medium.com, January 25th, 2019. Accessed: October 4, 2020. [Online]. Available: \url{https://blog.realkinetic.com/api-authentication-with-gcp-identity-aware-proxy-3a4147b30770}
 \bibitem{github_repo} G. Ankenmann, J. Bailey, F. Haque \textit{ITEC5102 Project Repository}, Github.com. [Online]. Available: \url{https://github.com/devagent42/ITEC5102F-Project}
 \end{thebibliography}
+
 \end{document}
