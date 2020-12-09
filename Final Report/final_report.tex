@@ -98,18 +98,35 @@ For this project we used some software in our lab that we determined that would 
 \item NGINX
 \end{itemize}
 \section{Lab Setup}
-We have setup a lab environment that is consistent and easy to use. We used Docker Engine with Docker Compose scripts to allow for a easy lab setup. A Github repository has been provided with all our research and scripts\cite{github_repo}.
+This section of the report will go into detail on the different virtual laboratory environments that were designed to implement the idea of cross network secure service networking. 
 
-After installing Docker Engine and Docker Compose on our machines, we then started to experiment with designing scenarios on how to best implement the software we found. 
-\subsection{Base Lab Setup}
-\subsection{Wireguard Lab Setup}
-Wireguard is a lightweight VPN intended for the Linux kernel, but is now available for Windows and macOS as well. It is a performance-oriented VPN that functions using a concept called Cryptokey Routing [1j]. This is a technique of assigning public keys to a list of allowable tunnel IP addresses, where each network interface is given a private key and a list of peers – keys are shared similarly to how SSH public keys are shared. Configuring Wireguard VPN’s is a relatively simple task, once Wireguard is installed it simply needs to be configured on each device, where one device acts as the server and the other devices respectively operate as clients. Each device’s configuration file contains the private key, public key of its peers, its listen port, and a list of allowed IP addresses. Wireguard can use IPv4 and IPv6 addresses [1j]. 
+Each environment is set up with identical HTTP and MQTT client-server services and is built using docker compose. There are four different environments, first the base environment which is a non-secure implementation, secondly an Stunnel environment, thirdly a Wireguard environment, and lastly a Shadowsocks environment. 
 
-Like most VPN’s Wireguard works on the network layer (layer 3) of the OSI model whereas the HTTP client-server and MQTT client-server programs of this environment operate on the application layer (layer 7) of the OSI model. As such, it must be interfaced properly to encrypt packets leaving the HTTP and MQTT services. The goal of this experimental environment is the same as in the other environments, encrypt the traffic coming from a service without changing the service itself, thus it is important not to alter the HTTP and MQTT containers. To connect the client and server through Wireguard an intermediate step is necessary connect from layer 7 down to layer 3. To do so, NGINX is used. NGINX is an open-source software that can be used for a multitude of web server-related use cases [2j]. In the case of this environment, it is used to stream data from the layer 7 applications, HTTP and MQTT, to the layer 3 Wireguard VPN. 
+Figure \ref{pic:lab-setup} shows the generic lab environment for each secure implementation. A pair of proxy containers are used to set up a secure tunnel for the data being sent between the client and the server, without changing the client and the server themselves. The secure proxy container is what is changing between each environment. A Github repository has been provided with all our research and scripts\cite{github_repo}.
 
-To create a secure tunnel between the services, the client and server which are docker containers, Wireguard is implemented as a proxy container to connect them over the untrusted network. Then an NGINX container that streams and redirects incoming data to the correct ports is placed between the service containers and their respective Wireguard proxy containers for encryption (see figure 1j).
-\subsection{Stunnel Lab Setup}
-\subsection{Shadowsocks Lab Setup}
+\begin{figure}[H]
+\includegraphics[width=9cm]{lab-setup}
+\centering
+\caption{Generic secure client-server environment}
+\label{pic:lab-setup}
+\end{figure}
+\subsection{Base Lab Environment}
+The base environment is simply a system of containers to connect HTTP and MQTT client containers to their respective server containers. This framework excludes the secure proxy containers and is primarily used to create a baseline that each other environment can be compared to.
+\subsubsection{HTTP service containers}
+HTTP is a protocol for exchanging data between a client and server over the web \cite{1j}. For our purposes the client and server are both written in python using the requests library and flask respectively. Each program is running inside its own docker container. The client sends an HTTP POST request to the server with a timestamp and a "secret" which is a randomly generated string of characters. This type of POST request is sent every two seconds to the server on port 5000 (at location "\url{/process_data}"). The HTTP server program listens on port 500 to receive the POST request from the client.
+\subsubsection{MQTT service containers}
+MQTT is a low-footprint, non-secure, publish-subscribe network protocol that connects a client and server via a broker, which receives messages with a defined "topic" from a client and forwards the message to all servers that are subscribed to that topic [2j]. In our case the broker accepts connections on port 1883, which is the default port for MQTT. The MQTT client publishes a message with a timestamp and a "secret" to a predefined topic to an MQTT broker. The server is subscribed to a generic wildcard topic that all clients would publish to the broker, thus when the client publishes its message, the broker passes the message on to the server. Similarly to the HTTP programs, the MQTT client and server programs are running in individual containers.
+\subsubsection{Stunnel Lab Environment}
+Stunnel is a type of proxy which is meant to add TLS encryption to existing clients and servers without changing the client-server code \cite{stunnel}, which is the main goal of this project. For encryption, Stunnel uses OpenSSL and TLS-PSK for access control. In this environment the “secure proxy” containers in figure \ref{pic:lab-setup} would be implemented using stunnel to initiate a secure proxy tunnel. For HTTP the proxy containers, all requests from port 5000, the ports used for HTTP, are forwarded to port 9000. In MQTT the proxy containers listen on the MQTT port, port 1883, and forwards all requests to port 9001. Effectively this creates a secure tunnel between the stunnel proxy containers, which are used to send data over the untrusted network. 
+\subsubsection{Wireguard Lab Environment}
+Wireguard is a lightweight VPN intended for the Linux kernel, but is now available for Windows and macOS as well. It is a performance-oriented VPN that functions using a concept called Cryptokey Routing \cite{wireguard}. This is a technique of assigning public keys to a list of allowable tunnel IP addresses, where each network interface is given a private key and a list of peers – keys are shared similarly to how SSH public keys are shared. Configuring Wireguard VPN’s is a relatively simple task, once Wireguard is installed it simply needs to be configured on each device, where one device acts as the server and the other devices respectively operate as clients. Each device’s configuration file contains the private key, public key of its peers, its listen port, and a list of allowed IP addresses. Wireguard can use IPv4 and IPv6 addresses [4j]. 
+Like most VPN’s Wireguard works on the network layer (layer 3) of the OSI model whereas the HTTP client-server and MQTT client-server programs of this environment operate on the application layer (layer 7) of the OSI model. As such, it must be interfaced properly to encrypt packets leaving the HTTP and MQTT services. The goal of this experimental environment is the same as in the other environments, encrypt the traffic coming from a service without changing the service itself, thus it is important not to alter the HTTP and MQTT containers. To connect the client and server through Wireguard an intermediate step is necessary connect from layer 7 down to layer 3. To do so, NGINX is used. NGINX is an open-source software that can be used for a multitude of web server-related use cases \cite{5j}. In the case of this environment, it is used to stream data from the layer 7 applications, HTTP and MQTT, to the layer 3 Wireguard VPN. 
+
+To create a secure tunnel between the services, the client and server which are docker containers, Wireguard is implemented as a proxy container to connect them over the untrusted network. Then a NGINX container is placed between the client/server and the Wireguard proxy that streams and redirects incoming data 5000 to 9000 for HTTP and port 1883 to 9001 for MQTT. The Wireguard proxy containers then connect over the untrusted network sending encrypted Wireguard messages. In figure \ref{pic:lab-setup} this combination of NGINX and Wireguard containers would go in place of the secure proxy container.
+\subsubsection{Shadowsocks Lab Environment}
+Shadowsocks is a secure SOCKs5 proxy. SOCKs5 is the most up to date version of the SOCKs protocol. SOCKs is a protocol used to establish a TCP or UDP session over a firewall, and since the protocol works on the session layer (layer 5 of the OSI model) it can readily handle HTTP requests \cite{socks5}.
+
+This environment does not include an MQTT component because MQTT python library does not support SOCKs. As well, this implementation of a secure tunnel does not fulfill the goal of this project because the HTTP client and server programs needed to be modified to function with SOCKs5. In figure \ref{pic:lab-setup}, the generic secure proxy containers would be the Shadowsocks containers.
 \section{Results and Analysis}
 To gather metrics, searches must be performed in the Elasticsearch database in order to extract the data. Kibana is used to visualize the searches. Saved objects are available on the project's GitHub\cite{github_repo} to replicate our searches. The Kibana saved objects loads saved searches and visualizations that automatically colour results. The table \ref{tab:kibana-colour} depicts the mapping of metrics to colour scheme used to automatically colour some of the data used in the graphs for this project. We determined these values after thinking what we believe to be "\textit{reasonable}". The colour is just to make the graphs pretty and easy to quickly analyze, the do not impact the results in anyway.
 
@@ -223,6 +240,7 @@ Stunnel & 16.943 & 4 & 56 & \cellcolor[HTML]{9AFF99}3.184 & \cellcolor[HTML]{9AF
 \bibitem{iap_b} Google Cloud, \textit{Identity-Aware Proxy: Documentatio }, Google, 2020. Accessed on: October 4, 2020. [Online] Available: \url{https://codelabs.developers.google.com/codelabs/user-auth-with-iap/index.html?index=..%2F..index#0}
 \bibitem{iap_c} T. Treat, \textit{API Authentication with GCP Identity-Aware Proxy}, Medium.com, January 25th, 2019. Accessed: October 4, 2020. [Online]. Available: \url{https://blog.realkinetic.com/api-authentication-with-gcp-identity-aware-proxy-3a4147b30770}
 \bibitem{github_repo} G. Ankenmann, J. Bailey, F. Haque \textit{ITEC5102 Project Repository}, Github.com. [Online]. Available: \url{https://github.com/devagent42/ITEC5102F-Project}
+
 \bibitem{wireguard} J. A. Donenfeld, \textit{Wireguard}, Wireguard, 2020. Accessed: October 4, 2020. [Online]. Available: \url{https://www.wireguard.com/}
 
 \bibitem{stunnel} Stunnel, \textit{Stunnel}, Stunnel, 2020. Accessed: October 4, 2020. [Online]. Available: \url{https://www.stunnel.org/}
@@ -230,6 +248,12 @@ Stunnel & 16.943 & 4 & 56 & \cellcolor[HTML]{9AFF99}3.184 & \cellcolor[HTML]{9AF
 \bibitem{shadowsocks} Shadowsocks, \textit{Shadowsocks}, Shadowsocks, 2020. Accessed: October 4, 2020. [Online]. Available: \url{https://shadowsocks.org/en/index.html}
 
 \bibitem{socks5} A. Patil, \textit{SOCKS Proxy Primer: What Is SOCKs5 and Why Should You Use It?}, Shadowsocks, September 27, 2019. Accessed: October 4, 2020. [Online]. Available: \url{https://securityintelligence.com/posts/socks-proxy-primer-what-is-socks5-and-why-should-you-use-it/}
+
+\bibitem{1j} Mozilla, An Overview of HTTP, date unknown, Accessed on December 9, 2020. [Online]. Available: \url{https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview}
+
+\bibitem{5j} NGINX, What is NGINX?, date unknown, Accessed on: December 4, 2020. [Online]. Available: \url{https://www.nginx.com/resources/glossary/nginx/}
+
+\bibitem{2j} MQTT.org, MQTT: The Standard for IoT Messaging, date unknown, Accessed on December 9, 2020. [Online]. Available: \url{https://mqtt.org/}
 \end{thebibliography}
 
 \end{document}
