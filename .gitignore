@@ -1,9 +1,10 @@
 *aux
 *log
 *out
-*report.pdf
+
 *synctex.gz
 *bin*
 *include*
 *lib*
+*dvi*
 *pip-selfcheck.json*
