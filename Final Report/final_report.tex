@@ -70,6 +70,28 @@ As the previously mentioned Consul run in software while Google IAP runs only wi
 
 In this project we will be experimenting with available products along with a custom solution that we will design that will meet our requirements. We will be using Docker Engine with Docker Compose scripts to experiment with the software along with creating a consistent setup for a more accurate comparison. 
 
+\section{Literature Review}
+The main aim of our project is to implement secure service discovery on a service level rather than on a networking level, having the system run of service will eliminate the need of external hardware and external VPN tunnels. The central motivation of our project is Consul by Hasicorp, however despite of having our guidelines in place for us we researched related papers in order to explore for any similar work done previously and to have a better understanding of our terrain and to research if anything remotely close to our work has been done before. 
+
+Like we had previously mentioned, there is not much work done directly related to what we are trying to achieve in our research. However, there is a lot of work being done in the field of overlay networks and researchers working on the service level, in \cite{f1} the authors have introduced elements called the Virtual Private Service Networks (VPSN) and Virtual Private Service Networks (VSN), which are to be implemented on the service level instead of the networking layer like the traditional VPN. Their work focuses on optimizing QoS by providing end-to-end of the services requested, they implement their VPSN on the service for easier management of the services in case of QoS. While the ease of management is one of our aims as well it is not the goal but an advantage. 
+
+Our proposed architecture will not only have high-level management as an advantage but also aims to be scalable as it essentially uses docker containers to run, in terms of scalability of secure private networks we must talk about Virtual Private LAN Services (VPLS) it is an architecture to interconnect legacy devices over on an industrial level however the VPLS is vulnerable, hence the paper mentions the only proposed architecture to provide security across customer sites and provider networks is HIP-Bases VPLS \cite{f2}. The HIPLS is still implemented on L2 which is a gap we are looking fill with our approach, while at the same time trying to make it scalable and secure.  
+
+Another architecture we came across in our research is a SD-VPN proposed environment meant to improve security and scalability for IoT devices with the use of overlay networks \cite{f3}, in this approach authors remove the need of a VPN which needs to be processed manually, with their approach of SD-VPN where the VPN is provisioned over SDN which makes the architecture create a new VPN service for a client when it joins automatically[3] While this approach targets both security and scalability, the architecture still needs to use SDN switches as their hardware which adds to the cost of designing such system, if compared to our approach. 
+
+A lot of researchers focus on creating an encrypted flow of data for IoT devices as the data is unencrypted, like paper \cite{f3} this paper also aims to secure the IoT by implementing a VPN system into the interface of the communication channel. In this approach the authors are combining VPN with a Wireless Intrusion Detection System (WIID) to deal with the interface issues where all IoT connect to one communication interface \cite{f4}. Likewise, another approach uses REST API and middleware to securely connect IoT devices over the interface \cite{f5}. The IoT middleware manage a trust relationship with devices so that these devices can be authenticated and authorized to share data, in this set up there is an IoT gateway to connect IoT device to database over the internet and the IoT devices are isolated from outside world and connected via gateway, this gateway acts as intermediate and uses REST API to exchange information securely with middleware at the DB \cite{f5}. This setup is secure, and a new approach however requires a lot of network level management with all the components working in the network layer. Something common to notice within all of the papers we have researched is that they are using VPN while our proposal removes the need to have a VPN at all. 
+
+Service-Oriented Security Architecture (SOA) is a proposed architecture to effectively solve the issue security in large scale information systems \cite{f6}. The SOA approach is divided into 4 stages:
+\begin{enumerate}
+\item Service Core Provides basic needs such as service discovery and searching, connection of security service management, and combination of services.
+\item Basic Security Service Layer consists of basic security components which can be dynamically managed in support of the security core
+\item Extended Security Service Layer - Provide more complex security components for outer layer applications.
+\item Security Application Layer This layer is where security applications are connected such as security devices and Security Application Program.
+\end{enumerate}
+ 
+
+The authors mention 3 patterns that could be used to satisfy the above functionalities and among that is Server connection pattern, which seems to be relevant to our project as it means that means that service user accesses and gets service directly from the specific location of service provider \cite{f6}. However, the use of this approach brings in complexity on design of security service core, while our proposed solution is more of a ‘drop-in security service’ that avoids all the complexities of the service core. The goal of SAO is to distribute resources with independent services to other users of same SOA environment, hence this approach works given that applications use SOA environment \cite{f6}. Which can be an issue, the major comparison point with our proposed approach would be that our solution doesn’t require the application to be changed in anyway.
+
 \section{Problem Statement}
 The issue you have with overlay networks is that it must be implemented at the network level, it is not implemented at the service level. This is where cross network secure service networking comes into play. This project will compare existing frameworks, and propose a new framework that offers security as the preliminary design consideration. 
 
@@ -124,7 +146,7 @@ The base environment is simply a system of containers to connect HTTP and MQTT c
 \subsubsection{HTTP service containers}
 HTTP is a protocol for exchanging data between a client and server over the web \cite{1j}. For our purposes the client and server are both written in python using the requests library and flask respectively. Each program is running inside its own docker container. The client sends an HTTP POST request to the server with a timestamp and a "secret" which is a randomly generated string of characters. This type of POST request is sent every two seconds to the server on port 5000 (at location "\url{/process_data}"). The HTTP server program listens on port 500 to receive the POST request from the client.
 \subsubsection{MQTT service containers}
-MQTT is a low-footprint, non-secure, publish-subscribe network protocol that connects a client and server via a broker, which receives messages with a defined "topic" from a client and forwards the message to all servers that are subscribed to that topic [2j]. In our case the broker accepts connections on port 1883, which is the default port for MQTT. The MQTT client publishes a message with a timestamp and a "secret" to a predefined topic to an MQTT broker. The server is subscribed to a generic wildcard topic that all clients would publish to the broker, thus when the client publishes its message, the broker passes the message on to the server. Similarly to the HTTP programs, the MQTT client and server programs are running in individual containers.
+MQTT is a low-footprint, non-secure, publish-subscribe network protocol that connects a client and server via a broker, which receives messages with a defined "topic" from a client and forwards the message to all servers that are subscribed to that topic \cite{2j}. In our case the broker accepts connections on port 1883, which is the default port for MQTT. The MQTT client publishes a message with a timestamp and a "secret" to a predefined topic to an MQTT broker. The server is subscribed to a generic wildcard topic that all clients would publish to the broker, thus when the client publishes its message, the broker passes the message on to the server. Similarly to the HTTP programs, the MQTT client and server programs are running in individual containers.
 \subsection{Stunnel Lab Environment}
 Stunnel is a type of proxy which is meant to add TLS encryption to existing clients and servers without changing the client-server code \cite{stunnel}, which is the main goal of this project. For encryption, Stunnel uses OpenSSL and TLS-PSK for access control. In this environment the “secure proxy” containers in figure \ref{pic:lab-setup} would be implemented using stunnel to initiate a secure proxy tunnel. For HTTP the proxy containers, all requests from port 5000, the ports used for HTTP, are forwarded to port 9000. In MQTT the proxy containers listen on the MQTT port, port 1883, and forwards all requests to port 9001. Effectively this creates a secure tunnel between the stunnel proxy containers, which are used to send data over the untrusted network. 
 \subsection{Wireguard Lab Environment}
@@ -191,27 +213,7 @@ For HTTP and MQTT, Wireguard and Stunnel fulfilled the objectives of this projec
 
 We believe that there are probably better and more efficient ways to accomplish this project and we would like to see further work dedicated to designing a solution for this.
 
-\section{Literature Review}
-The main aim of our project is to implement secure service discovery on a service level rather than on a networking level, having the system run of service will eliminate the need of external hardware and external VPN tunnels. The central motivation of our project is Consul by Hasicorp, however despite of having our guidelines in place for us we researched related papers in order to explore for any similar work done previously and to have a better understanding of our terrain and to research if anything remotely close to our work has been done before. 
 
-Like we had previously mentioned, there is not much work done directly related to what we are trying to achieve in our research. However, there is a lot of work being done in the field of overlay networks and researchers working on the service level, in [1] the authors have introduced elements called the Virtual Private Service Networks (VPSN) and Virtual Private Service Networks (VSN), which are to be implemented on the service level instead of the networking layer like the traditional VPN. Their work focuses on optimizing QoS by providing end-to-end of the services requested, they implement their VPSN on the service for easier management of the services in case of QoS. While the ease of management is one of our aims as well it is not the goal but an advantage. 
-
-Our proposed architecture will not only have high-level management as an advantage but also aims to be scalable as it essentially uses docker containers to run, in terms of scalability of secure private networks we must talk about Virtual Private LAN Services (VPLS) it is an architecture to interconnect legacy devices over on an industrial level however the VPLS is vulnerable, hence the paper mentions the only proposed architecture to provide security across customer sites and provider networks is HIP-Bases VPLS [2]. The HIPLS is still implemented on L2 which is a gap we are looking fill with our approach, while at the same time trying to make it scalable and secure.  
-
-Another architecture we came across in our research is a SD-VPN proposed environment meant to improve security and scalability for IoT devices with the use of overlay networks [3], in this approach authors remove the need of a VPN which needs to be processed manually, with their approach of SD-VPN where the VPN is provisioned over SDN which makes the architecture create a new VPN service for a client when it joins automatically[3] While this approach targets both security and scalability, the architecture still needs to use SDN switches as their hardware which adds to the cost of designing such system, if compared to our approach. 
-
-A lot of researchers focus on creating an encrypted flow of data for IoT devices as the data is unencrypted, like paper [3] this paper also aims to secure the IoT by implementing a VPN system into the interface of the communication channel. In this approach the authors are combining VPN with a Wireless Intrusion Detection System (WIID) to deal with the interface issues where all IoT connect to one communication interface [4]. Likewise, another approach uses REST API and middleware to securely connect IoT devices over the interface [5]. The IoT middleware manage a trust relationship with devices so that these devices can be authenticated and authorized to share data, in this set up there is an IoT gateway to connect IoT device to database over the internet and the IoT devices are isolated from outside world and connected via gateway, this gateway acts as intermediate and uses REST API to exchange information securely with middleware at the DB [5]. This setup is secure, and a new approach however requires a lot of network level management with all the components working in the network layer. Something common to notice within all of the papers we have researched is that they are using VPN while our proposal removes the need to have a VPN at all. 
-
-Service-Oriented Security Architecture (SOA) is a proposed architecture to effectively solve the issue security in large scale information systems [6]. The SOA approach is divided into 4 stages:
-\begin{enumerate}
-\item Service Core Provides basic needs such as service discovery and searching, connection of security service management, and combination of services.
-\item Basic Security Service Layer consists of basic security components which can be dynamically managed in support of the security core
-\item Extended Security Service Layer - Provide more complex security components for outer layer applications.
-\item Security Application Layer This layer is where security applications are connected such as security devices and Security Application Program.
-\end{enumerate}
- 
-
-The authors mention 3 patterns that could be used to satisfy the above functionalities and among that is Server connection pattern, which seems to be relevant to our project as it means that means that service user accesses and gets service directly from the specific location of service provider [6]. However, the use of this approach brings in complexity on design of security service core, while our proposed solution is more of a ‘drop-in security service’ that avoids all the complexities of the service core. The goal of SAO is to distribute resources with independent services to other users of same SOA environment, hence this approach works given that applications use SOA environment [6]. Which can be an issue, the major comparison point with our proposed approach would be that our solution doesn’t require the application to be changed in anyway.
 \section{Appendix}
 \begin{table}[H]
 \centering
@@ -272,9 +274,25 @@ Stunnel & 16.943 & 4 & 56 & \cellcolor[HTML]{9AFF99}3.184 & \cellcolor[HTML]{9AF
 \bibitem{consul} Consul, \textit{Consul by HashiCorp}, HashiCorp, 2020. Accessed on: September 20, 2020. [Online] \url{https://www.consul.io/}
 
 \bibitem{iap} Google Cloud, \textit{Identity-Aware Proxy (IAP)}, Google, 2020. Accessed on: September 20, 2020. [Online] Available: \url{https://cloud.google.com/iap}
+
 \bibitem{iap_b} Google Cloud, \textit{Identity-Aware Proxy: Documentatio }, Google, 2020. Accessed on: October 4, 2020. [Online] Available: \url{https://codelabs.developers.google.com/codelabs/user-auth-with-iap/index.html?index=..%2F..index#0}
+
 \bibitem{iap_c} T. Treat, \textit{API Authentication with GCP Identity-Aware Proxy}, Medium.com, January 25th, 2019. Accessed: October 4, 2020. [Online]. Available: \url{https://blog.realkinetic.com/api-authentication-with-gcp-identity-aware-proxy-3a4147b30770}
+
 \bibitem{github_repo} G. Ankenmann, J. Bailey, F. Haque \textit{ITEC5102 Project Repository}, Github.com. [Online]. Available: \url{https://github.com/devagent42/ITEC5102F-Project}
+
+%Fahmida References
+\bibitem{f1} Z. B. Daho, N. Simoni, \textit{Towards Dynamic Virtual Private Service Networks: Design and Self-Management}, IEEE / CNRS, 2006 
+
+\bibitem{f2} M. Liyanage, J. Okwuibe, M. Ylianttila , A. Gurtov,\textit{Secure Virtual Private LAN Services: An Overview with Performance Evaluation}, IEEE / ICC 2015.
+
+\bibitem{f3} L. Shi, F. Wang, and C. Lung, \textit{Improvement of Security and Scalability for IoT Network Using SD-VPN}, Carleton University, 2018.
+
+\bibitem{f4} P. Majumdar, A. Pandey, S. K. Khatri, R. Jain, R. Majumdar, V. P. Mishra, \textit{Combination of Virtual Private Network and Wireless Sensor Network: Protection Against The Interference Problem of IOT}, IEEE. 
+
+\bibitem{f5} H. Garg, M. Dave, \textit{Securing IoT Devices and Securely Connecting the Dots Using REST API and Middleware},  IEEE, 2019.
+
+\bibitem{f6} W. Cheng, X. Zhan, S. Zhang, \textit{Study on Service-Oriented Security Architecture}, IEEE, 2011.
 
 \bibitem{wireguard} J. A. Donenfeld, \textit{Wireguard}, Wireguard, 2020. Accessed: October 4, 2020. [Online]. Available: \url{https://www.wireguard.com/}
 
