@@ -11,10 +11,18 @@
 \usepackage{lscape}
 %\usepackage{xcolor}
 \usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
 \usepackage[table,xcdraw]{xcolor}
 \graphicspath{ {pictures/} }
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\thepage}
+
 \begin{document}
 
 \title{Cross Network Secure Service Networking}
@@ -184,6 +192,26 @@ For HTTP and MQTT, Wireguard and Stunnel fulfilled the objectives of this projec
 We believe that there are probably better and more efficient ways to accomplish this project and we would like to see further work dedicated to designing a solution for this.
 
 \section{Literature Review}
+The main aim of our project is to implement secure service discovery on a service level rather than on a networking level, having the system run of service will eliminate the need of external hardware and external VPN tunnels. The central motivation of our project is Consul by Hasicorp, however despite of having our guidelines in place for us we researched related papers in order to explore for any similar work done previously and to have a better understanding of our terrain and to research if anything remotely close to our work has been done before. 
+
+Like we had previously mentioned, there is not much work done directly related to what we are trying to achieve in our research. However, there is a lot of work being done in the field of overlay networks and researchers working on the service level, in [1] the authors have introduced elements called the Virtual Private Service Networks (VPSN) and Virtual Private Service Networks (VSN), which are to be implemented on the service level instead of the networking layer like the traditional VPN. Their work focuses on optimizing QoS by providing end-to-end of the services requested, they implement their VPSN on the service for easier management of the services in case of QoS. While the ease of management is one of our aims as well it is not the goal but an advantage. 
+
+Our proposed architecture will not only have high-level management as an advantage but also aims to be scalable as it essentially uses docker containers to run, in terms of scalability of secure private networks we must talk about Virtual Private LAN Services (VPLS) it is an architecture to interconnect legacy devices over on an industrial level however the VPLS is vulnerable, hence the paper mentions the only proposed architecture to provide security across customer sites and provider networks is HIP-Bases VPLS [2]. The HIPLS is still implemented on L2 which is a gap we are looking fill with our approach, while at the same time trying to make it scalable and secure.  
+
+Another architecture we came across in our research is a SD-VPN proposed environment meant to improve security and scalability for IoT devices with the use of overlay networks [3], in this approach authors remove the need of a VPN which needs to be processed manually, with their approach of SD-VPN where the VPN is provisioned over SDN which makes the architecture create a new VPN service for a client when it joins automatically[3] While this approach targets both security and scalability, the architecture still needs to use SDN switches as their hardware which adds to the cost of designing such system, if compared to our approach. 
+
+A lot of researchers focus on creating an encrypted flow of data for IoT devices as the data is unencrypted, like paper [3] this paper also aims to secure the IoT by implementing a VPN system into the interface of the communication channel. In this approach the authors are combining VPN with a Wireless Intrusion Detection System (WIID) to deal with the interface issues where all IoT connect to one communication interface [4]. Likewise, another approach uses REST API and middleware to securely connect IoT devices over the interface [5]. The IoT middleware manage a trust relationship with devices so that these devices can be authenticated and authorized to share data, in this set up there is an IoT gateway to connect IoT device to database over the internet and the IoT devices are isolated from outside world and connected via gateway, this gateway acts as intermediate and uses REST API to exchange information securely with middleware at the DB [5]. This setup is secure, and a new approach however requires a lot of network level management with all the components working in the network layer. Something common to notice within all of the papers we have researched is that they are using VPN while our proposal removes the need to have a VPN at all. 
+
+Service-Oriented Security Architecture (SOA) is a proposed architecture to effectively solve the issue security in large scale information systems [6]. The SOA approach is divided into 4 stages:
+\begin{enumerate}
+\item Service Core Provides basic needs such as service discovery and searching, connection of security service management, and combination of services.
+\item Basic Security Service Layer consists of basic security components which can be dynamically managed in support of the security core
+\item Extended Security Service Layer - Provide more complex security components for outer layer applications.
+\item Security Application Layer This layer is where security applications are connected such as security devices and Security Application Program.
+\end{enumerate}
+ 
+
+The authors mention 3 patterns that could be used to satisfy the above functionalities and among that is Server connection pattern, which seems to be relevant to our project as it means that means that service user accesses and gets service directly from the specific location of service provider [6]. However, the use of this approach brings in complexity on design of security service core, while our proposed solution is more of a ‘drop-in security service’ that avoids all the complexities of the service core. The goal of SAO is to distribute resources with independent services to other users of same SOA environment, hence this approach works given that applications use SOA environment [6]. Which can be an issue, the major comparison point with our proposed approach would be that our solution doesn’t require the application to be changed in anyway.
 \section{Appendix}
 \begin{table}[H]
 \centering
