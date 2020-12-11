@@ -52,23 +52,21 @@ Cross network secure service networking is starting to be a more common requirem
 \end{abstract}
 
 \section{Introduction}
-Cross network secure service networking is starting to be a more common requirement these days where certain services must be accessible but proper security controls must also be implemented to prevent unauthorized access.
-
-VPN are present in a modern connected world. One instance is in corporate environments which allows secure access to protected services from untrusted environments, such as the public internet. Secure access to corporate services can be accomplished by means of a client to site or a site to site virtual private network (VPN). Generally with a site to site VPN, the tunnel are usually established by dedicated hardware. With a client to site VPN, the tunnel is usually established by software on a client device\cite{what is a vpn}\cite{how a vpn works}. 
+VPNs are a common occurrence in a modern connected world. One instance is in corporate environments which allows secure access to protected services from untrusted environments, such as the public internet. Secure access to corporate services can be accomplished by means of a client to site or a site to site virtual private network (VPN). Generally with a site to site VPN, the tunnel are usually established by dedicated hardware. With a client to site VPN, the tunnel is usually established by software on a client device\cite{what is a vpn}\cite{how a vpn works}. 
 
 Overlay networks are common in modern data centres where they allow abstraction of certain network functions that can run on top of physical networks\cite{what are network overlays}. A common network overlay is Virtual eXtensible Local Area Network (VXLAN)\cite{vxlan}. This framework allows data centres to offer tenants with their own isolated network domains without deploying additional infrastructure. Network encryption is available for VXLAN by means of IPSec. 
 
 Cross network secure service networking allows for services to communicate with each other across networks by establishing an encrypted and authenticated overlay network that allows for secure communication at the service level. Cross network secure service networking can also be leveraged by legacy applications that don't offer in transit data encryption by means of a bastion host \cite{what is a bastion host} that can functions as a proxy which would take in unencrypted data then pipes it to a service or client over an encrypted tunnel. A common example of such a device are terminal servers\cite{raritan} that connect to supervisory control and data acquisition (SCADA) and legacy equipment that only have serial connection or telent, and offer the user a secure session by means of a SSH session or VPN.
 
-Multiple commercial offerings exist for software applications, notably Consul and Google Compute Engine (GCE) Identity-Aware Proxy (IAP). They offer software that enables cross network secure service networking. Consul can run on almost any operating system, while IAP is Google Cloud specific where it allows a identity aware proxy that allows secure access to non public services.
+Multiple commercial offerings exist for software applications, notably Consul and Google Compute Engine (GCE) Identity-Aware Proxy (IAP). They offer software that enables cross network secure service networking. Consul can run on almost any operating system, while IAP is Google Cloud specific where an identity aware proxy allows secure access to non public services.
 
-Consul is software that is majorly used for discovery and configuration for a range of applications and services, it provides an up to date outlook on services in an infrastructure. Consul was mainly built to manage services in a distributed system. One of the main challenges faced by many large scale industries, is the heightened use of distributed systems and service discovery has come as a blessing to the challenges faced by the use of distributed systems. Consul is made user-friendly with the use of a flexible and powerful interface. Consul requires a data plane and it runs with a built-in proxy. All the services discovered by consul in an infrastructure is stored in a single registry so that the services can find each other by storing the information of IP addresses or other location information, this makes consul a centralized service registry. Clients can find services that are registered with consul with the help of DNS or HTTP interfaces which leads to an easy procedure to discover resources\cite{consul}.  
+Consul is software that is primarily used for discovery and configuration for a range of applications and services, it provides an up to date outlook on services in an infrastructure. Its main purpose is to manage services in a distributed system. The heightened use of distributed systems is one of the main challenges faced by many large scale industries is, and service discovery comes as a great solution to this problem. Consul is made user-friendly with the use of a flexible and powerful interface. Consul requires a data plane and it runs with a built-in proxy. All the services discovered by consul in an infrastructure are stored in a single registry so that the services can find each other by storing the information of IP addresses or other location information, this makes consul a centralized service registry. Clients can find services that are registered with consul with the help of DNS or HTTP interfaces which leads to an easy procedure to discover resources\cite{consul}.  
 
 Identity-Aware Proxy (IAP), is a service from Google which provides a “central authorization layer for applications accessed by HTTPS” \cite{iap}. IAP works by only granting users or so-called “members” access when they posses the correct role. This allows for access control policies to be specific to resources and applications\cite{iap}. IAP works by intercepting web requests, authenticating the user making the request, and only granting access when the user is in fact authorized. This technique of implementing authentication and authorization remotely removes the need for a VPN \cite{iap_b}. Google’s goal with IAP is to create a method that users may connect to untrusted networks and access services without needing a VPN \cite{iap_c} – this directly mitigates the issues surrounding VPN usage, such as reduced speed. As well, users of VPN’s must either have full access or no access to the network, and service granularity is extremely limited – IAP solves this by providing authentication on an application by application basis.
 
-As the previously mentioned Consul run in software while Google IAP runs only within Google Cloud. Consul is not designed to operate with physical equipment. 
+As previously mentioned, Consul runs in software while Google IAP runs only within Google Cloud. Consul is not designed to operate with physical equipment. 
 
-In this project we will be experimenting with available products along with a custom solution that we will design that will meet our requirements. We will be using Docker Engine with Docker Compose scripts to experiment with the software along with creating a consistent setup for a more accurate comparison. 
+In this project we will be experimenting with available products along with a custom solution that we will design to meet our requirements. We will be using Docker Engine with Docker Compose scripts to experiment with the software along with creating a consistent setup for a more accurate comparison. 
 
 \section{Literature Review}
 The main aim of our project is to implement secure service discovery on a service level rather than on a networking level, having the system run of service will eliminate the need of external hardware and external VPN tunnels. The central motivation of our project is Consul by Hasicorp, however despite of having our guidelines in place for us we researched related papers in order to explore for any similar work done previously and to have a better understanding of our terrain and to research if anything remotely close to our work has been done before. 
@@ -93,14 +91,14 @@ Service-Oriented Security Architecture (SOA) is a proposed architecture to effec
 The authors mention 3 patterns that could be used to satisfy the above functionalities and among that is Server connection pattern, which seems to be relevant to our project as it means that means that service user accesses and gets service directly from the specific location of service provider \cite{f6}. However, the use of this approach brings in complexity on design of security service core, while our proposed solution is more of a ‘drop-in security service’ that avoids all the complexities of the service core. The goal of SAO is to distribute resources with independent services to other users of same SOA environment, hence this approach works given that applications use SOA environment \cite{f6}. Which can be an issue, the major comparison point with our proposed approach would be that our solution doesn’t require the application to be changed in anyway.
 
 \section{Problem Statement}
-The issue you have with overlay networks is that it must be implemented at the network level, it is not implemented at the service level. This is where cross network secure service networking comes into play. This project will compare existing frameworks, and propose a new framework that offers security as the preliminary design consideration. 
+The issue with overlay networks is that they must be implemented at the network level, it is not implemented at the service level. This is where cross network secure service networking comes into play. This project will compare existing frameworks, and propose a new framework that offers security as the preliminary design consideration, that doesn't alter the service in any way.
 
 \section{Objective}
 The primary objective is that we design a system that allows for encryption of data without changing the client or server implementation.
 
 
 \section{Metrics}
-One of the first tasks we had to complete was to determine what metrics we were looking for to determine the "best" solution. We settled on the following metrics.
+One of the first tasks was to determine what metrics we were looking for to determine the "best" solution. We settled on the following metrics.
 \begin{itemize}
 \item Latency
 \item Throughput
@@ -111,7 +109,7 @@ One of the first tasks we had to complete was to determine what metrics we were 
 \section{Software}
 After many hours of research we settled on the following software.
 \subsection{Backend Software (out of scope of this project)}
-For this project we used some software in the backend to make our lives much easier to analyze the data and provide meaningful results. The following list of software is not within the scope of this project as it does not actually relate to the problem statement, but it offers the possibility to accomplish research relating to the problem statement. 
+For this project we used some backend software to easily analyze the data and provide meaningful insight. The following lists the software used that is not within the scope of this project as it does not actually relate to the problem statement, but it offers the possibility to accomplish research relating to the problem statement. 
 \begin{itemize}
 \item Kibana
 \item Elasticsearch
@@ -160,9 +158,9 @@ Shadowsocks is a secure SOCKs5 proxy. SOCKs5 is the most up to date version of t
 
 This environment does not include an MQTT component because MQTT python library does not support SOCKs. As well, this implementation of a secure tunnel does not fulfill the goal of this project because the HTTP client and server programs needed to be modified to function with SOCKs5. In figure \ref{pic:lab-setup}, the generic secure proxy containers would be the Shadowsocks containers.
 \section{Results and Analysis}
-To gather metrics, searches must be performed in the Elasticsearch database in order to extract the data. Kibana is used to visualize the searches. Saved objects are available on the project's GitHub\cite{github_repo} to replicate our searches. The Kibana saved objects loads saved searches and visualizations that automatically colour results. The table \ref{tab:kibana-colour} depicts the mapping of metrics to colour scheme used to automatically colour some of the data used in the graphs for this project. We determined these values after thinking what we believe to be "\textit{reasonable}". The colour is just to make the graphs pretty and easy to quickly analyze, the do not impact the results in anyway.
+To gather metrics, searches must be performed in the Elasticsearch database to extract the data, and Kibana is used to visualize the searches. Saved objects are available on the project's GitHub\cite{github_repo} to replicate our searches. The Kibana saved objects loads saved searches and visualizations that automatically colour results. Table \ref{tab:kibana-colour} depicts the mapping of metrics to colour scheme used to automatically colour some of the data used in the graphs for this project. We determined these values after thinking what we believe to be "\textit{reasonable}". The colour is just to make the graphs pretty and easy to quickly analyze, the do not impact the results in anyway.
 
-For each lab setup, we would run the lab for a minimum of 25 minutes. Metrics are calculated on the latest 15 minutes of data based on the time of ingest into Elasticsearch. A table with our overall results is included in this report, see table \ref{tab:results} for details. If the reader wishes to replicate our project, Docker Compose scripts are available in the project's GitHub repository \cite{github_repo}.
+For each lab setup, we would run the lab for a minimum of 25 minutes. Metrics are calculated on the latest 15 minutes of data based on the time of ingest into Elasticsearch. A table with our overall results is included in this report, see table \ref{tab:results} for details. If the reader wishes to replicate our project, Docker Compose scripts are also available in the project's GitHub repository \cite{github_repo}.
 
 \subsection{Base Results}
 \begin{figure}[H]
@@ -215,6 +213,35 @@ We believe that there are probably better and more efficient ways to accomplish 
 
 
 \section{Appendix}
+\begin{figure}[H]
+\includegraphics[width=7cm]{Lab-Base}
+\centering
+\caption{Base Lab Block Diagram}
+\label{pic:base-diagram}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=7cm]{STunnel-Lab}
+\centering
+\caption{Stunnel Lab Block Diagram}
+\label{pic:stunnel-diagram}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=7cm]{Wireguard-Lab}
+\centering
+\caption{Wireguard Lab Block Diagram}
+\label{pic:wireguard-diagram}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=3.5cm]{ShadowSocks-Lab}
+\centering
+\caption{Shadowsocks Lab Block Diagram}
+\label{pic:shadowsocks-diagram}
+\end{figure}
+
+
 \begin{table}[H]
 \centering
 \begin{tabular}{ccc}
@@ -239,24 +266,43 @@ We believe that there are probably better and more efficient ways to accomplish 
 \caption{Kibana Colour Boxes}
 \label{tab:kibana-colour}
 \end{table}
-\begin{landscape}
-\begin{table}[]
+%\begin{landscape}
+\begin{table}[H]
 \centering
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\begin{tabular}{cccc}
 \hline
- & \multicolumn{3}{c|}{\textbf{HTTP Server Latency}} & \multicolumn{3}{c|}{\textbf{MQTT Server Latency}} & \multicolumn{4}{c|}{} \\ \hline
-Scenario & \begin{tabular}[c]{@{}c@{}}Average\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Minimum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Maximum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average \\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Minimum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Maximum\\ (ms)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average\\ CPU\\ (\%)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Average\\ Memory\\ (\%)\end{tabular} & \begin{tabular}[c]{@{}c@{}}\#\\ Containers\end{tabular} & \begin{tabular}[c]{@{}c@{}}\#\\ Packet Drops\end{tabular} \\ \hline
+\multicolumn{4}{|c|}{\textbf{HTTP Server Latency}} \\ \hline
+\multicolumn{1}{|c|}{Scenario} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Average\\ (ms)\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Minimum\\ (ms)\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Maximum\\ (ms)\end{tabular}} \\ \hline
 \rowcolor[HTML]{FFCE93} 
-Base & 9.326 & 2 & 16 & 1.832 & 0 & 6 & 0.849 & 0.791 & 9 & 0 \\ \hline
+\multicolumn{1}{|c|}{\cellcolor[HTML]{FFCE93}Base} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}9.326} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}2} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}16} \\ \hline
 \rowcolor[HTML]{FFCCC9} 
-Shadowsocks & 9.679 & 3 & 24 & \multicolumn{3}{c|}{\cellcolor[HTML]{FFCCC9}N/A} & 0.534 & 0.658 & 11 & 0 \\ \hline
-Wireguard & \cellcolor[HTML]{9AFF99}10.81 & \cellcolor[HTML]{9AFF99}3 & \cellcolor[HTML]{9AFF99}19 & 4.002 & 1 & 12 & \cellcolor[HTML]{9AFF99}0.547 & \cellcolor[HTML]{9AFF99}0.465 & 13 & \cellcolor[HTML]{9AFF99}0 \\ \hline
-Stunnel & 16.943 & 4 & 56 & \cellcolor[HTML]{9AFF99}3.184 & \cellcolor[HTML]{9AFF99}1 & \cellcolor[HTML]{9AFF99}21 & 4.87 & 0.486 & 13 & \cellcolor[HTML]{9AFF99}0 \\ \hline
+\multicolumn{1}{|c|}{\cellcolor[HTML]{FFCCC9}Shadowsocks} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCCC9}9.679} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCCC9}3} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCCC9}24} \\ \hline
+\multicolumn{1}{|c|}{Wireguard} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}10.81} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}3} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}19} \\ \hline
+\multicolumn{1}{|c|}{Stunnel} & \multicolumn{1}{c|}{16.943} & \multicolumn{1}{c|}{4} & \multicolumn{1}{c|}{56} \\ \hline
+\multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} \\ \hline
+\multicolumn{4}{|c|}{\textbf{MQTT Server Latency}} \\ \hline
+\multicolumn{1}{|c|}{Scenario} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Average \\ (ms)\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Minimum\\ (ms)\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Maximum\\ (ms)\end{tabular}} \\ \hline
+\rowcolor[HTML]{FFCE93} 
+\multicolumn{1}{|c|}{\cellcolor[HTML]{FFCE93}Base} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}1.832} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}0} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}6} \\ \hline
+\rowcolor[HTML]{FFCCC9} 
+\multicolumn{1}{|c|}{\cellcolor[HTML]{FFCCC9}Shadowsocks} & \multicolumn{3}{c|}{\cellcolor[HTML]{FFCCC9}N/A} \\ \hline
+\multicolumn{1}{|c|}{Wireguard} & \multicolumn{1}{c|}{4.002} & \multicolumn{1}{c|}{1} & \multicolumn{1}{c|}{12} \\ \hline
+\multicolumn{1}{|c|}{Stunnel} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}3.184} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}1} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}21} \\ \hline
+\multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Other Metrics}} \\ \hline
+\multicolumn{1}{|c|}{Scenario} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Average\\ CPU\\ (\%)\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Average\\ Memory\\ (\%)\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\#\\ Containers\end{tabular}} \\ \hline
+\rowcolor[HTML]{FFCE93} 
+\multicolumn{1}{|c|}{\cellcolor[HTML]{FFCE93}Base} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}0.849} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}0.791} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCE93}9} \\ \hline
+\rowcolor[HTML]{FFCCC9} 
+\multicolumn{1}{|c|}{\cellcolor[HTML]{FFCCC9}Shadowsocks} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCCC9}0.534} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCCC9}0.658} & \multicolumn{1}{c|}{\cellcolor[HTML]{FFCCC9}8} \\ \hline
+\multicolumn{1}{|c|}{Wireguard} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}0.547} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}0.465} & \multicolumn{1}{c|}{\cellcolor[HTML]{9AFF99}13} \\ \hline
+\multicolumn{1}{|c|}{Stunnel} & \multicolumn{1}{c|}{4.87} & \multicolumn{1}{c|}{0.486} & \multicolumn{1}{c|}{13} \\ \hline
 \end{tabular}
 \caption{Results table.}
 \label{tab:results}
 \end{table}
-\end{landscape}
+%\end{landscape}
+\newpage
 \begin{thebibliography}{00}
 \bibitem{what is a vpn} Norton, \textit{What is a VPN?}, Norton, 2020. Accessed on: September 20, 2020. [Online]. Available: \url{https://us.norton.com/internetsecurity-privacy-what-is-a-vpn.html}
 
